@@ -1,0 +1,242 @@
+@import url('https://fonts.googleapis.com/css?family=Roboto');
+
+html, body {
+  height: 100%;
+  margin: 0;
+  padding: 0;
+  font-family: Roboto, Arial, sans-serif;
+}
+
+html, body, div, img, svg, h1, h2, h3, p, a, ul, li {
+  touch-action: manipulation;
+}
+
+h1 {
+  margin: 0;
+  background-color: #FFF !important;
+}
+
+h1 > img {
+  height: 25px;
+  width: auto;
+}
+
+.map {
+  height: 100%;
+}
+
+.version {
+  position: fixed;
+  top: 0;
+  left: 0;
+  margin: 10px;
+  color: red;
+  font-size: 32px;
+  pointer-events: none;
+  z-index: 1;
+}
+
+.controlContainer {
+  display: flex;
+  flex-direction: column-reverse;
+  flex-wrap: nowrap;
+  align-items: center;
+  position: absolute;
+  top: 0;
+  bottom: 0;
+  left: 0;
+  margin-bottom: 25px;
+  width: 100%;
+  height: auto;
+  pointer-events: none;
+}
+
+.controlBox {
+  bottom: 0;
+  background-color: #fff;
+  border: 2px solid #fff;
+  border-radius: 3px;
+  box-shadow: 0 2px 6px rgba(0, 0, 0, .3);
+  text-align: left;
+  margin-top: 10px;
+  pointer-events: auto;
+  padding-bottom: 10px;
+}
+
+.controlPanel {
+  white-space:nowrap;
+  position: relative;
+}
+
+.controlText {
+  font-size: 18px;
+}
+
+.controlBox > * {
+  padding-left: 5px;
+  padding-right: 5px;
+  margin-top: 10px;
+}
+
+.controlPanel > *,
+.about > .controlButton {
+  display: flex;
+  flex-wrap: nowrap;
+  justify-content: space-evenly;
+  color: rgb(25, 25, 25);
+  font-family: Roboto, Arial, sans-serif;
+  font-size: 16px;
+  line-height: 38px;
+}
+
+.controlPanel > * > *,
+.about > .controlButton {
+  display: inline-block;
+  vertical-align: middle;
+  margin-left: 5px;
+  margin-right: 5px;
+  box-sizing: border-box;
+  height: 30px;
+  color: black;
+}
+
+.controlPanel > * > select {
+  flex: auto;
+  padding-right: 22px;
+  padding-left: 10px;
+  padding-top: 2px;
+  font-size: 16px;
+  background-color: #EEE;
+  border: 0;
+  -webkit-appearance: none;
+  -moz-appearance:    none;
+  appearance:         none;
+  position: relative;
+}
+
+.multipleSelect {
+  background-image:
+    linear-gradient(45deg, #EEE 50%, transparent 50%),
+    linear-gradient(135deg, transparent 50%, #EEE 50%),
+    linear-gradient(to right, #AAA, #AAA);
+  background-position: calc(100% + 13px) 11px;
+  background-size:
+    55px calc(1em + 2px),
+    55px calc(1em + 2px),
+    55px 1em;
+  background-repeat: no-repeat;
+}
+
+.controlPanel > .controlText {
+  padding-bottom: 4px;
+}
+
+.controlButton {
+  padding-left: 5px;
+  padding-right: 5px;
+  border-radius: 3px;
+  background-color: #EEE;
+  -webkit-user-select: none;  
+  -moz-user-select: none;    
+  -ms-user-select: none;      
+  user-select: none;
+}
+
+.controlButton > .controlText {
+  font-size: 16px;
+  text-align: center;
+  position: relative;
+  top: 50%;
+  left: 50%;
+  transform: translate(-50%, -50%);
+}
+
+.about {
+  flex-grow: 1;
+  display: flex;
+  flex-direction: column;
+  flex-wrap: nowrap;
+  margin-left: 5px;
+  margin-right: 5px;
+  max-width: 600px;
+  padding: 10px;
+  z-index: 2;
+}
+
+.aboutText {
+  flex: auto;
+  height: 1px;
+  overflow-y: scroll;
+  overflow-x: hidden;
+  -webkit-overflow-scrolling: touch;
+}
+
+.about h1 {
+  font-size: 60px;
+  text-align: center;
+}
+
+.about h1 > img {
+  height: 60px;
+  width: auto;
+}
+
+.about img {
+  max-width: 100%;
+}
+
+.about h3 > svg {
+  height: 15px;
+}
+
+.about p {
+  margin: 0;
+  margin-bottom: 32px;
+  line-height: 1.4;
+}
+
+.help {
+  background-color: #4285f4;
+  color: white !important;
+  font-weight: bold;
+}
+
+.jsWarning {
+  font-size: 25px;
+  font-weight: bold;
+  color: red;
+}
+
+.clickable {
+  cursor: pointer;
+}
+
+.clicked {
+  background-color: #888;
+  color: white;
+}
+
+.showButton {
+  width: 50px;
+}
+
+.hidden {
+  display: none;
+}
+
+.controlPanel > .closer {
+  background-color: transparent;
+  margin-top: 23px;
+  position: absolute;
+  top: 0;
+  right: 0;
+  margin-top: 10px;
+}
+
+.closer > * > .controlText {
+  font-size: 22px;
+}
+
+.closer > .controlButton {
+  height: 34px;
+}

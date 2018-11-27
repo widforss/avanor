@@ -1,0 +1,11 @@
+<svg xmlns="http://www.w3.org/2000/svg" viewBox="-6 -5 112 98">
+  <rect x="-6" y="-12" width="100%" height="100%" fill="white"/>
+  <polyline points="50,0 100,87 50,62" stroke="none" fill="black" stroke-width="5"/>
+  <polygon points="50,0 100,87 50,62 0,87" stroke="black" fill="none" stroke-width="5"/>
+  <path d="M26.272904,43.292035 a6,6 0 1,1 -5.202084,-8.989703" stroke="white" fill="none" stroke-width="5"/>
+  <path d="M30.405890,34.093751 l-5,8.7 a5,5 0 1,1 -4.335070,-7.491419" stroke="black" fill="none" stroke-width="5"/>
+  <path d="M35.242014,27.685784 a11,11 0 1,1 -9.537153,-16.481123" stroke="white" fill="none" stroke-width="5"/>
+  <path d="M39.375,18.4875 l-5,8.7 a10,10 0 1,1 -8.670139,-14.982839" stroke="black" fill="none" stroke-width="5"/>
+  <path d="M38.979143,21.183179 a8.5,8.5 0 1,1 -7.369619,-12.735413" stroke="white" fill="none" stroke-width="5"/>
+  <path d="M43.112129,11.984895 l-5,8.7 a7.5,7.5 0 1,1 -6.50260425,-11.23712925" stroke="black" fill="none" stroke-width="5"/>
+</svg>

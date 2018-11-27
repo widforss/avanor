@@ -1,0 +1,28 @@
+<!DOCTYPE html>
+<html>
+  <head>
+    <script async src="{{ trackUrl }}?id={{ trackId }}"></script>
+    <script>
+      window.dataLayer = window.dataLayer || [];
+      function gtag(){dataLayer.push(arguments);}
+      gtag('js', new Date());
+      gtag('config', '{{ trackId }}');
+    </script>
+    <meta name="viewport" content="initial-scale=1.0">
+    <meta charset="utf-8">
+    <link rel="stylesheet" href="./static/style/style.css">
+    <link rel="stylesheet" href="./static/style/map_popup.css">
+    <title>{{ title }}</title>
+    <link rel="icon" type="image/png" href="./static/media/logo/logo256.png"/>
+  </head>
+  <body id="body">
+    <div class="version">v. {{ version }}</div>
+    <script src="./client.js"></script>
+    <script defer src="{{ mapUrl }}?key={{ mapKey }}&amp;callback=run"></script>
+    <noscript>
+      <div class="jsWarning">
+        Avanor requires a browser with JavaScript. Please activate JavaScript.
+      </div>
+    </noscript>
+  </body>
+</html>
