@@ -221,10 +221,10 @@ function Sentinel(SETTINGS) {
         ee.Geometry(coverage).evaluate((geom, errMsg) => {
           if (errMsg) {
             if (callback) {
-              Errors.handle(new EeEvalError(), callback);
+              Errors.handle(new Errors.EeEvalError(), callback);
             }
             callback = null;
-            Errors.handle(new EeEvalError(errMsg));
+            Errors.handle(new Errors.EeEvalError(errMsg));
             return;
           }
           back(geom);
