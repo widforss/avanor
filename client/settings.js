@@ -56,6 +56,12 @@ var SETTINGS = {
     rotateControl: false,
     fullscreenControl: false,
     clickableIcons: false,
+    styles: [{
+      'stylers': [{
+        'featureType': 'landscape.natural.terrain',
+        'lightness': 50,
+      }]
+    }]
   },
 };
 

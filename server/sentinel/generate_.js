@@ -104,28 +104,16 @@ function SentinelGenerate(SETTINGS) {
   this.queryName = queryName;
 
   function getCoverage(properties) {
-      var geom = ee.Image(ee.Dictionary(queryName(properties)).get('render'))
-                   .select(0)
-                   .gte(0)
+      return ee.Image(ee.Dictionary(queryName(properties)).get('image'))
+                   .select('delta')
+                   .mask()
+                   .eq(1)
                    .reduceToVectors({
                      scale: SETTINGS.VECTOR_SCALE,
                      geometry: terrain.geometry(),
                    })
                    .geometry()
                    .simplify(2 * SETTINGS.VECTOR_SCALE);
-//    var copernicus = collection_(null);
-//    var orbitNums = ee.List(getOrbits_(copernicus));
-//    var geom = copernicus.filter(ee.Filter.eq('relativeOrbitNumber_start', orbit))
-//                         .mosaic()
-//                         .select(0)
-//                         .gte(0)
-//                         .reduceToVectors({
-//                           scale: SETTINGS.VECTOR_SCALE,
-//                           geometry: terrain.geometry(),
-//                         })
-//                         .geometry()
-//                         .simplify(2 * SETTINGS.VECTOR_SCALE);
-    return geom;
   }
   this.getCoverage = getCoverage;
   
@@ -343,14 +331,9 @@ function SentinelGenerate(SETTINGS) {
     
     var imgName = generateName_(action.first(), ref.first());
     
-    var actionImg = ee.Image(10).pow(action.mosaic());
-    var refImg    = ee.Image(10).pow(ref.mosaic());
-    var delta = actionImg.subtract(refImg);
-    var delta = ee.Image(0).mask(delta.mask())
-                           .blend(delta.log10()
-                                       .unitScale(-18, 0)
-                                       .clamp(0, 1))
-                           .rename('delta');
+    var actionImg = action.mosaic();
+    var refImg    = ref.mosaic();
+    var delta = actionImg.subtract(refImg).select(0).rename('delta');
     
     var orbitNum  = action.first().get('relativeOrbitNumber_start');
     var slopes            = ee.Terrain.slope(terrain);
@@ -393,30 +376,27 @@ function SentinelGenerate(SETTINGS) {
     var shadow  = image.select('shadow');
     var terrain = image.select('terrain');
     var slopes  = image.select('slopes');
+
+    delta = ee.Image(0).blend(delta.log10()
+                                   .unitScale(-2.5, -0.3)
+                                   .clamp(0, 1)
+                                   .pow(2)
+                                   .add(0.2)
+                                   .multiply(shadow));
+    shadow = shadow.neq(1).multiply(SETTINGS.OPACITY/2);
+    slopes = slopes.multiply(SETTINGS.OPACITY);
     
-    var hillshade = ee.Image(1);
-    if (SETTINGS.HILLSHADE) {
-      hillshade =  ee.Terrain
-                     .hillshade(terrain)
-                     .unitScale(0,255)
-                     .subtract(1)
-                     .multiply(0.4)
-                     .add(1);
-    }
+    var bg = ee.Image(1);
     if (SETTINGS.SEAMASK) {
-      hillshade = hillshade.mask(terrain.neq(0));
+      bg = bg.mask(terrain.neq(0));
     }
-    hillshade = hillshade.resample('bicubic');
     
-    var shadowedDelta     = delta.multiply(shadow);
-    var transparentSlope  = slopes.multiply(SETTINGS.OPACITY);
-    var transparentShadow = shadow.neq(1).multiply(SETTINGS.OPACITY);
-    
-    var red   = hillshade.subtract(shadowedDelta).subtract(transparentSlope);
-    var green = hillshade.subtract(shadowedDelta).subtract(transparentShadow);
-    var blue  = hillshade.subtract(transparentSlope)
-                         .subtract(transparentShadow);
-    return ee.Image.rgb(red, green, blue);
+    var red   = bg.subtract(delta).subtract(slopes);
+    var green = bg.subtract(delta).subtract(shadow);
+    var blue  = bg.subtract(slopes).subtract(shadow);
+
+    var mask = red.lt(0.79).or(green.lt(0.79)).or(blue.lt(0.99))
+    return ee.Image.rgb(red, green, blue).mask(mask);
   }
 }
 
