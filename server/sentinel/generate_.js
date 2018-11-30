@@ -106,8 +106,7 @@ function SentinelGenerate(SETTINGS) {
   function getCoverage(properties) {
       return ee.Image(ee.Dictionary(queryName(properties)).get('image'))
                    .select('delta')
-                   .mask()
-                   .eq(1)
+                   .neq(0)
                    .reduceToVectors({
                      scale: SETTINGS.VECTOR_SCALE,
                      geometry: terrain.geometry(),
@@ -383,7 +382,7 @@ function SentinelGenerate(SETTINGS) {
                                    .pow(2)
                                    .add(0.2)
                                    .multiply(shadow));
-    shadow = shadow.neq(1).multiply(SETTINGS.OPACITY/2);
+    shadow = shadow.neq(1).multiply(SETTINGS.OPACITY);
     slopes = slopes.multiply(SETTINGS.OPACITY);
     
     var bg = ee.Image(1);
@@ -391,11 +390,11 @@ function SentinelGenerate(SETTINGS) {
       bg = bg.mask(terrain.neq(0));
     }
     
-    var red   = bg.subtract(delta).subtract(slopes);
+    var blue  = bg.subtract(delta).subtract(slopes);
     var green = bg.subtract(delta).subtract(shadow);
-    var blue  = bg.subtract(slopes).subtract(shadow);
+    var red   = bg.subtract(slopes).subtract(shadow);
 
-    var mask = red.lt(0.79).or(green.lt(0.79)).or(blue.lt(0.99))
+    var mask = red.lt(0.99).or(green.lt(0.79)).or(blue.lt(0.79))
     return ee.Image.rgb(red, green, blue).mask(mask);
   }
 }
