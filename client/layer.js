@@ -24,7 +24,7 @@ function Layer(map, layerSelect, z, SETTINGS, getDate) {
   function notify_() {
     var xhr = new XMLHttpRequest(),
         method = "GET",
-        date = getDate().toLocaleDateString('sv-SE', 'UTC'),
+        date = utils.formatDate(getDate()),
         bounds = JSON.stringify(map.getBounds()),
         url = "./api/name/" + date + '?bounds=' + bounds;
     
