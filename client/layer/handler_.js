@@ -25,7 +25,9 @@ function LayerHandler(map, layerSelect, z, SETTINGS) {
     
     if (layerNames.length) {
       layerSelect.setOptions(layerNames);
-      var idx = layerNames.indexOf(currentName);
+      var idx = layerNames.indexOf(currentName ?
+                                   currentName :
+                                   utils.getCookie('img'));
       idx     = idx == -1 ? 0 : idx;
       layerSelect.setValue(idx);
       selectEvent_();
@@ -42,6 +44,8 @@ function LayerHandler(map, layerSelect, z, SETTINGS) {
   function selectEvent_() {
     var oldName = currentName;
     currentName = layerSelect.getValue();
+
+    utils.setCookie('img', currentName);
 
     if (oldName !== currentName || !oldName) {
         request.run("./api/map/" + currentName);

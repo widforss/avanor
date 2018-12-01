@@ -77,6 +77,8 @@ function Control(map, notify_, z, SETTINGS) {
   controlContainer.appendChild(controlPanel.getDiv());
   controlContainer.appendChild(about.getDiv());
 
+  if (utils.getCookie('help') == 'hidden') toggle_();
+
   function getDiv() {
     return controlContainer;
   }
@@ -93,8 +95,10 @@ function Control(map, notify_, z, SETTINGS) {
   this.getLayerSelect = getLayerSelect;
 
   function toggle_() {
-    about.getDiv().classList.toggle('hidden');
+    var aboutClasses = about.getDiv().classList;
+    aboutClasses.toggle('hidden');
     controlPanel.getDiv().classList.toggle('hidden');
+    utils.setCookie('help', aboutClasses.contains('hidden') ? 'hidden' : '');
   }
 }
 

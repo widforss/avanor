@@ -121,6 +121,27 @@ function Map(div, SETTINGS) {
     map.setZoom(zoom);
   }
   this.setZoom = setZoom;
+
+  function setPos(x, y, z) {
+    map.setCenter({'lat': y, 'lng': x});
+    setZoom(z);
+  }
+  this.setPos = setPos;
+
+  function getX() {
+    return map.getCenter().lng();
+  }
+  this.getX = getX;
+
+  function getY() {
+    return map.getCenter().lat();
+  }
+  this.getY = getY;
+
+  function getZ() {
+    return map.getZoom();
+  }
+  this.getZ = getZ;
 }
 
 export {Map};

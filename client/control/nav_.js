@@ -1,9 +1,11 @@
 import {ControlUtils} from "./utils/utils_.js";
+import {Utils} from "../utils/utils_.js";
 
 /**
  * @constructor
  */
 function ControlNav(map, z, SETTINGS, toggle) {
+  var utils = new Utils();
   var controlUtils = new ControlUtils();
 
   var minus = new controlUtils.Button('－', () => {
@@ -16,8 +18,10 @@ function ControlNav(map, z, SETTINGS, toggle) {
     if (zoom < SETTINGS.ZOOM[1]) map.setZoom(zoom + 1);
   });
 
+  var cookie = utils.getCookie('basemap');
+  var basemap = cookie ? cookie : SETTINGS.DEFAULT_MAP;
   var mapSelect = new controlUtils.Select(SETTINGS.MAPS, setBaseMap_);
-  mapSelect.setValue(SETTINGS.MAPS.indexOf(SETTINGS.DEFAULT_MAP));
+  mapSelect.setValue(SETTINGS.MAPS.indexOf(basemap));
   setBaseMap_();
 
   var mapToggle = new controlUtils.Button(SETTINGS.HIDE_MAP, () => {
@@ -49,7 +53,9 @@ function ControlNav(map, z, SETTINGS, toggle) {
   this.getDiv = getDiv;
 
   function setBaseMap_() {
-    map.setBaseMap(mapSelect.getValue().toLowerCase());
+    var basemap = mapSelect.getValue();
+    map.setBaseMap(basemap.toLowerCase());
+    utils.setCookie('basemap', basemap);
   }
 }
 

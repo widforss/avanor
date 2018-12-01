@@ -27,6 +27,10 @@ function Layer(map, layerSelect, z, SETTINGS, getDate) {
         date = utils.formatDate(getDate()),
         bounds = JSON.stringify(map.getBounds()),
         url = "./api/name/" + date + '?bounds=' + bounds;
+
+    utils.setCookie('x', map.getX());
+    utils.setCookie('y', map.getY());
+    utils.setCookie('z', map.getZ());
     
     request.run(url);
   }

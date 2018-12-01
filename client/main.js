@@ -20,6 +20,16 @@ function run() {
                         SETTINGS.EE_LAYER_Z,
                         SETTINGS.LAYER,
                         control.getDate);
+
+  var cookie = {
+    'x': parseInt(utils.getCookie('x'), 10),
+    'y': parseInt(utils.getCookie('y'), 10),
+    'z': parseInt(utils.getCookie('z'), 10),
+  }
+  if(cookie['x'] && cookie['y'] && cookie['z']) {
+    map.setPos(cookie['x'], cookie['y'], cookie['z']);
+  }
+
   var currentLabel;
   var labelPosition;
   var request = new utils.Request((text) => {

@@ -1,13 +1,17 @@
 import {ControlUtils} from "./utils/utils_.js";
+import {Utils} from "../utils/utils_.js";
 
 /**
  * @constructor
  */
 function ControlCal(notify, SETTINGS) {
+  var utils = new Utils();
   var controlUtils = new ControlUtils();
+  var cookie       = utils.getCookie('date');
   var today        = new Date();
-  var selectDate   = new Date(SETTINGS.DEFAULT_DATE);
   var firstDate    = new Date(Date.UTC(SETTINGS.START_YEAR, 0));
+  var selectDate   =
+      new Date(cookie ? parseInt(cookie, 10) : SETTINGS.DEFAULT_DATE);
   
   if (SETTINGS.SEASON_MONTHS.indexOf(selectDate.getUTCMonth()) == -1) {
     throw new Error(SETTINGS.SEASON_MONTH_ERR);
@@ -165,6 +169,8 @@ function ControlCal(notify, SETTINGS) {
     
     daySelect.setOptions(daysLst_());
     daySelect.setValue(selectDate.getUTCDate() - 1);
+
+    utils.setCookie('date', selectDate.getTime());
   }
 
   /**
