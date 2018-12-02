@@ -381,7 +381,8 @@ function SentinelGenerate(SETTINGS) {
                                    .unitScale(-2.5, -0.3)
                                    .clamp(0, 1)
                                    .add(0.2)
-                                   .multiply(shadow));
+                                   .multiply(shadow)
+                                   .pow(2));
     slopes = slopes.multiply(shadow).multiply(SETTINGS.OPACITY);
     shadow = shadow.neq(1).multiply(SETTINGS.OPACITY/2);
     
