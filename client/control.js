@@ -1,27 +1,24 @@
+import {Utils}   from "./utils/utils_.js";
 import {ControlCal}   from "./control/cal_.js";
 import {ControlNav}   from "./control/nav_.js";
 import {ControlUtils} from "./control/utils/utils_.js";
-import {Utils}   from "./utils/utils_.js";
 
 /**
  * @constructor
  */
-function Control(map, notify_, z, SETTINGS) {
+function Control(map, initVals, SETTINGS, notify_, setState) {
+  var utils  = new Utils();
   var controlUtils  = new ControlUtils();
-  var utils = new Utils();
 
-  var aboutTitle  = new controlUtils.Text(SETTINGS.TITLE);
-  var aboutText = new controlUtils.Text(null);
-  var aboutOk = new controlUtils.Button('OK, got it!', toggle_);
-  var about = new controlUtils.Control([
-    aboutTitle.getDiv(),
-    aboutText.getDiv(),
-    aboutOk.getDiv(),
-  ]);
-  about.getDiv().classList.add('about');
-  aboutOk.getDiv().classList.add('help');
-  aboutText.getDiv().classList.add('aboutText');
-  
+  var controlTitle = new controlUtils.Text(SETTINGS.TITLE);
+  var controlCal   = new ControlCal(notify_, initVals.initDate, SETTINGS.DATE);
+  var controlMap   = new controlUtils.Select([], () => {});
+  var controlNav   = new ControlNav(map,
+                                    initVals.basemap,
+                                    SETTINGS.NAV,
+                                    toggleHelp_,
+                                    setState);
+
   var aboutRequest = new utils.Request((text) => {
     aboutText.getDiv().innerHTML = text;
   });
@@ -29,11 +26,6 @@ function Control(map, notify_, z, SETTINGS) {
     aboutRequest.run(SETTINGS.HELP_ADDRESS);
   };
   window['fetchHelp']();
-
-  var controlTitle = new controlUtils.Text(SETTINGS.TITLE);
-  var controlCal   = new ControlCal(notify_, SETTINGS.DATE);
-  var controlMap   = new controlUtils.Select([], () => {});
-  var controlNav   = new ControlNav(map, z, SETTINGS.NAV, toggle_);
 
   var closed = false;
   var controlClose = new controlUtils.Button('⨯', () => {
@@ -74,10 +66,21 @@ function Control(map, notify_, z, SETTINGS) {
   controlPanel.getDiv().classList.add('controlPanel');
   controlPanel.getDiv().classList.add('hidden');
 
+  var aboutTitle  = new controlUtils.Text(SETTINGS.TITLE);
+  var aboutText = new controlUtils.Text(null);
+  var aboutOk = new controlUtils.Button('OK, got it!', toggleHelp_);
+  var about = new controlUtils.Control([
+    aboutTitle.getDiv(),
+    aboutText.getDiv(),
+    aboutOk.getDiv(),
+  ]);
+  about.getDiv().classList.add('about');
+  aboutOk.getDiv().classList.add('help');
+  aboutText.getDiv().classList.add('aboutText');
+  if (!initVals.help) toggleHelp_();
+  
   controlContainer.appendChild(controlPanel.getDiv());
   controlContainer.appendChild(about.getDiv());
-
-  if (utils.getCookie('help') == 'hidden') toggle_();
 
   function getDiv() {
     return controlContainer;
@@ -94,11 +97,16 @@ function Control(map, notify_, z, SETTINGS) {
   }
   this.getLayerSelect = getLayerSelect;
 
-  function toggle_() {
+  function isHelpHidden() {
+    return about.getDiv().classList.contains('hidden');
+  }
+  this.isHelpHidden = isHelpHidden;
+
+  function toggleHelp_() {
     var aboutClasses = about.getDiv().classList;
     aboutClasses.toggle('hidden');
     controlPanel.getDiv().classList.toggle('hidden');
-    utils.setCookie('help', aboutClasses.contains('hidden') ? 'hidden' : '');
+    setState();
   }
 }
 

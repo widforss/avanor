@@ -110,6 +110,7 @@ function ControlUtils() {
     this.setOptions = setOptions;
 
     function setText(text) {
+      selectList.classList.remove('multipleSelect');
       selectList.options.length = 0;
       var option = document.createElement("option");
       option.value = null;

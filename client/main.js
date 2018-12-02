@@ -1,72 +1,70 @@
 import {Layer} from "./layer.js";
 import {Control} from "./control.js";
 import {Map} from "./map.js";
-import {Utils} from "./utils/utils_.js";
+import {Label} from "./label.js";
+import {ReadState, Persistency} from "./persistency.js";
 import {SETTINGS} from "./settings.js";
 
 function run() {
-  var utils = new Utils();
+  var timeOutKey;
 
   var mapDiv = document.createElement('div');
   mapDiv.classList.add('map');
 
-  var map = new Map(mapDiv, SETTINGS.MAP);
+  var readState = new ReadState(SETTINGS.PERSISTENCY);
+  var map = new Map(mapDiv, readState.mapInit(), SETTINGS.MAP);
+
   var control = new Control(map,
+                            readState.controlInit(),
+                            SETTINGS.CONTROL,
                             updateDate_,
-                            SETTINGS.EE_LAYER_Z,
-                            SETTINGS.CONTROL);
+                            setState_);
   var layer = new Layer(map,
                         control.getLayerSelect(),
-                        SETTINGS.EE_LAYER_Z,
+                        readState.layerInit(),
                         SETTINGS.LAYER,
-                        control.getDate);
+                        control.getDate,
+                        setState_);
+  var label = new Label(map, readState.labelInit(), getUrl_);
+  var persistency = new Persistency(map,
+                                    control,
+                                    label,
+                                    layer,
+                                    SETTINGS.PERSISTENCY);
 
-  var cookie = {
-    'x': parseInt(utils.getCookie('x'), 10),
-    'y': parseInt(utils.getCookie('y'), 10),
-    'z': parseInt(utils.getCookie('z'), 10),
-  }
-  if(cookie['x'] && cookie['y'] && cookie['z']) {
-    map.setPos(cookie['x'], cookie['y'], cookie['z']);
-  }
-
-  var currentLabel;
-  var labelPosition;
-  var request = new utils.Request((text) => {
-    var content = document.createElement('div');
-    
-    var answer = JSON.parse(text);
-    var string = '';
-    for (var proj in answer) {
-      string += '<strong>' + proj + '</strong> ' + answer[proj] + '<br>';
-    }
-    content.innerHTML = string;
-    currentLabel = map.addLabel(labelPosition, content);
-  });
-
-  map.onLoad(layer.updateMap);
-  map.onMove(() => {
-    if (currentLabel) {
-      map.rmLabel(currentLabel);
-      currentLabel = null;
-    }
-    layer.updateMap();
-  });
-  map.onClick((pos) => {
-    if (currentLabel) {
-      map.rmLabel(currentLabel);
-      currentLabel = null;
-    }
-    labelPosition = pos;
-    request.run('api/coordinates/' + pos.lat() + '/' + pos.lng());
-  });
+  map.onLoad(updateMap_);
+  map.onMove(updateMap_);
+  map.onClick(label.setLabel);
+  control.getLayerSelect().setFunc(label.clearLabel);
 
   document.getElementById('body').appendChild(mapDiv);
   document.getElementById('body').appendChild(control.getDiv());
 
   function updateDate_() {
-    map.removeEe(SETTINGS.EE_LAYER_Z);
-    layer.updateMap();
+    map.removeEe();
+    updateMap_();
+  }
+
+  function updateMap_() {
+    label.clearLabel();
+    window.clearTimeout(timeOutKey);
+    control.getLayerSelect().setText(SETTINGS.SEARCHING_STR);
+    timeOutKey = window.setTimeout(() => {
+      persistency.setState();
+      layer.updateMap();
+    }, SETTINGS.THROTTLE_DELAY);
+  }
+
+  function getUrl_() {
+    return persistency.getUrl();
+  }
+
+  function setState_() {
+    if (persistency) {
+      return persistency.setState();
+    } else {
+      return () => {};
+    }
   }
 }
 window['run'] = run;

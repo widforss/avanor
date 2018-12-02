@@ -1,11 +1,9 @@
 import {ControlUtils} from "./utils/utils_.js";
-import {Utils} from "../utils/utils_.js";
 
 /**
  * @constructor
  */
-function ControlNav(map, z, SETTINGS, toggle) {
-  var utils = new Utils();
+function ControlNav(map, basemap, SETTINGS, toggle, setState) {
   var controlUtils = new ControlUtils();
 
   var minus = new controlUtils.Button('－', () => {
@@ -18,8 +16,6 @@ function ControlNav(map, z, SETTINGS, toggle) {
     if (zoom < SETTINGS.ZOOM[1]) map.setZoom(zoom + 1);
   });
 
-  var cookie = utils.getCookie('basemap');
-  var basemap = cookie ? cookie : SETTINGS.DEFAULT_MAP;
   var mapSelect = new controlUtils.Select(SETTINGS.MAPS, setBaseMap_);
   mapSelect.setValue(SETTINGS.MAPS.indexOf(basemap));
   setBaseMap_();
@@ -28,11 +24,11 @@ function ControlNav(map, z, SETTINGS, toggle) {
     if (mapToggle.getText() == SETTINGS.HIDE_MAP) {
       mapToggle.setText(SETTINGS.SHOW_MAP);
       mapToggle.getDiv().classList.add('clicked');
-      map.toggleEeFrom(z);
+      map.toggleEeFrom();
     } else {
       mapToggle.setText(SETTINGS.HIDE_MAP);
       mapToggle.getDiv().classList.remove('clicked');
-      map.toggleEeTo(z);
+      map.toggleEeTo();
     }
   });
   mapToggle.getDiv().classList.add('showButton');
@@ -54,8 +50,8 @@ function ControlNav(map, z, SETTINGS, toggle) {
 
   function setBaseMap_() {
     var basemap = mapSelect.getValue();
-    map.setBaseMap(basemap.toLowerCase());
-    utils.setCookie('basemap', basemap);
+    map.setBaseMap(basemap);
+    setState();
   }
 }
 

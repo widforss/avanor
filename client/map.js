@@ -3,7 +3,7 @@ import {returnPopupClass} from "./map/popup.js";
 /**
  * @constructor
  */
-function Map(div, SETTINGS) {
+function Map(div, initPos, SETTINGS) {
   var Popup = returnPopupClass();
   var map = new google.maps.Map(div, SETTINGS);
 
@@ -11,6 +11,9 @@ function Map(div, SETTINGS) {
   var eeHidden = [];
   var labelCounter = 0;
   var labels = [];
+  var basemap;
+
+  setPos(initPos.x, initPos.y, initPos.z);
 
   function onMove(func) {
     map.addListener('center_changed', func);
@@ -27,7 +30,7 @@ function Map(div, SETTINGS) {
     
     google.maps.event.addListener(map, 'click', function(event){
       update_timeout = setTimeout(function(){
-        func(event.latLng);
+        func(event.latLng.lng(), event.latLng.lat());
       }, 200);        
     });
     
@@ -37,8 +40,9 @@ function Map(div, SETTINGS) {
   }
   this.onClick = onClick;
 
-  function addLabel(position, content) {
-    labels[++labelCounter] = new Popup(position, content);
+  function addLabel(x, y, content) {
+    labels[++labelCounter] = new Popup({'lat': () => y, 'lng': () => x},
+                                       content);
     labels[labelCounter].setMap(map);
     return labelCounter;
   }
@@ -52,29 +56,30 @@ function Map(div, SETTINGS) {
   }
   this.rmLabel = rmLabel;
 
-  function toggleEeTo(i) {
-    if (eeLayers[i]) {
-      map.overlayMapTypes.setAt(i, eeLayers[i]);
-      eeHidden[i] = false;
+  function toggleEeTo() {
+    if (eeLayers[SETTINGS.EE_LAYER_Z]) {
+      map.overlayMapTypes.setAt(SETTINGS.EE_LAYER_Z,
+                                eeLayers[SETTINGS.EE_LAYER_Z]);
+      eeHidden[SETTINGS.EE_LAYER_Z] = false;
     }
   }
   this.toggleEeTo = toggleEeTo;
 
-  function toggleEeFrom(i) {
-    if (map.overlayMapTypes.getAt(i)) {
-      map.overlayMapTypes.removeAt(i);
-      eeHidden[i] = true;
+  function toggleEeFrom() {
+    if (map.overlayMapTypes.getAt(SETTINGS.EE_LAYER_Z)) {
+      map.overlayMapTypes.removeAt(SETTINGS.EE_LAYER_Z);
+      eeHidden[SETTINGS.EE_LAYER_Z] = true;
     }
   }
   this.toggleEeFrom = toggleEeFrom;
 
-  function removeEe(i) {
-    map.overlayMapTypes.removeAt(i);
-    eeLayers[i] = null;
+  function removeEe() {
+    map.overlayMapTypes.removeAt(SETTINGS.EE_LAYER_Z);
+    eeLayers[SETTINGS.EE_LAYER_Z] = null;
   }
   this.removeEe = removeEe;
 
-  function setEe(i, mapid, token) {
+  function setEe(mapid, token) {
     const eeMapOptions = {
       'getTileUrl': (tile, zoom) => {
         const baseUrl = 'https://earthengine.googleapis.com/map';
@@ -84,9 +89,13 @@ function Map(div, SETTINGS) {
       'tileSize': new google.maps.Size(256, 256)
     };
 
-    eeLayers[i] = new google.maps.ImageMapType(eeMapOptions);
+    eeLayers[SETTINGS.EE_LAYER_Z] =
+        new google.maps.ImageMapType(eeMapOptions);
 
-    if (!eeHidden[i]) map.overlayMapTypes.setAt(i, eeLayers[i]);
+    if (!eeHidden[SETTINGS.EE_LAYER_Z]) {
+      map.overlayMapTypes.setAt(SETTINGS.EE_LAYER_Z,
+                                eeLayers[SETTINGS.EE_LAYER_Z]);
+    }
   }
   this.setEe = setEe;
 
@@ -108,9 +117,15 @@ function Map(div, SETTINGS) {
   this.getBounds = getBounds;
 
   function setBaseMap(mapName) {
-    map.setMapTypeId(mapName);
+    basemap = mapName;
+    map.setMapTypeId(mapName.toLowerCase());
   }
   this.setBaseMap = setBaseMap;
+
+  function getBaseMap() {
+    return basemap;
+  }
+  this.getBaseMap = getBaseMap;
 
   function getZoom() {
     return map.getZoom();
