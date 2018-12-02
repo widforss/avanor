@@ -1,4 +1,5 @@
 var SETTINGS = {
+  HOST: 'avanor.se',
   THROTTLE_DELAY: 100,
   SEARCHING_STR:  'Looking for satellite data …',
   PERSISTENCY: {

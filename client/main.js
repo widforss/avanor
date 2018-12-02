@@ -8,6 +8,13 @@ import {SETTINGS} from "./settings.js";
 function run() {
   var timeOutKey;
 
+  if (window.location.hostname == SETTINGS.HOST &&
+      location.protocol != 'https:') {
+        location.href =
+            'https:' +
+                window.location.href.substring(window.location.protocol.length);
+  }
+
   var mapDiv = document.createElement('div');
   mapDiv.classList.add('map');
 
