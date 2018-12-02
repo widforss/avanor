@@ -41,6 +41,7 @@ function Server() {
         .use('/static', express.static('static'));
     
     app.set('trust proxy', true);
+    app.use(httpRedirect_);
     app.use(wwwRedirect_);
     app.use(ieRedirect_);
     
@@ -98,6 +99,13 @@ function Server() {
       }
       next();
     };
+
+    function httpRedirect_(req, res, next) {
+      if (process.env.NODE_ENV == 'production') {
+        res.set('Strict-Transport-Security', 'max-age=86400; includeSubDomains');
+      }
+      next();
+    }
 
     // This is bad practice
     function ieRedirect_(req, res, next) {
