@@ -6,17 +6,17 @@ Avanor is an avalanche observation tool. It uses [Sentinel&#8209;1](https://sent
 
 ![Avalanche](/static/media/help/avalanche.png)
 
-### <svg viewBox="-1 -1 2 2"><circle r="1" fill="red"/></svg> Detected changes and avalanches
+### <svg viewBox="-1 -1 2 2"><circle r="1" fill="#ff0909"/></svg> Detected changes and avalanches
 
 All Avanor images have a timespan of 6&nbsp;or&nbsp;12 days. The changes are shown in red on the map, and while there will be some noise (weak red spots scattered over the map), detected avalanches are easily recognized as red stripes or areas. Due to the large temporal resolution the same avalanche may end up on multiple days worth of images. To more exactly get the date of an avalanche one can step back one day at a time and find the first image that shows that specific avalanche.
 
-### <svg viewBox="-1 -1 2 2"><circle r="1" fill="green"/></svg> Avalanche terrain
+### <svg viewBox="-1 -1 2 2"><circle r="1" fill="#99ff99"/></svg> Avalanche terrain
 
 Most avalanches start in terrain that is between 30&#8209;40°. These areas are marked in green on the map.
 
-### <svg viewBox="-1 -1 2 2"><circle r="1" fill="blue"/></svg> Radio shadow
+### <svg viewBox="-1 -1 2 2"><circle r="1" fill="#cccccc"/></svg> Radio shadow
 
-The satellites do not fly straight over the area they are sensing. Some steep slopes may therefore not be visible to the satellite. Such areas are marked in blue on the map.
+The satellites do not fly straight over the area they are sensing. Some steep slopes may therefore not be visible to the satellite. Such areas are marked in grey on the map. Neither satellite data or avalanche terrain will be represented in these areas.
 
 ### Coordinates
 

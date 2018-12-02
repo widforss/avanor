@@ -107,6 +107,7 @@ function SentinelGenerate(SETTINGS) {
       return ee.Image(ee.Dictionary(queryName(properties)).get('image'))
                    .select('delta')
                    .neq(0)
+                   .multiply(terrain.neq(0).mask(terrain.neq(0)))
                    .reduceToVectors({
                      scale: SETTINGS.VECTOR_SCALE,
                      geometry: terrain.geometry(),
@@ -379,18 +380,17 @@ function SentinelGenerate(SETTINGS) {
     delta = ee.Image(0).blend(delta.log10()
                                    .unitScale(-2.5, -0.3)
                                    .clamp(0, 1)
-                                   .pow(2)
                                    .add(0.2)
                                    .multiply(shadow));
-    shadow = shadow.neq(1).multiply(SETTINGS.OPACITY);
-    slopes = slopes.multiply(SETTINGS.OPACITY);
+    slopes = slopes.multiply(shadow).multiply(SETTINGS.OPACITY);
+    shadow = shadow.neq(1).multiply(SETTINGS.OPACITY/2);
     
     var bg = ee.Image(1);
     if (SETTINGS.SEAMASK) {
       bg = bg.mask(terrain.neq(0));
     }
     
-    var blue  = bg.subtract(delta).subtract(slopes);
+    var blue  = bg.subtract(delta).subtract(slopes).subtract(shadow);
     var green = bg.subtract(delta).subtract(shadow);
     var red   = bg.subtract(slopes).subtract(shadow);
 
