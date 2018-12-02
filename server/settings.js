@@ -40,7 +40,7 @@ const SETTINGS = {
       'HILLSHADE':         false,
       'SEAMASK':           true,
       'VECTOR_SCALE':      10000,
-      'SEASON_MONTHS':     [0, 1, 2, 3, 11],
+      'SEASON_MONTHS':     [0, 1, 2, 3, 4, 11],
       'START_YEAR':        2015,
     },
   },

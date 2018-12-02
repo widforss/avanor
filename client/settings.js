@@ -19,7 +19,7 @@ var SETTINGS = {
     HELP_ADDRESS: './md/help.md',
     DATE: {
       START_YEAR:       2017,
-      SEASON_MONTHS:    [0, 1, 2, 3, 11],
+      SEASON_MONTHS:    [0, 1, 2, 3, 4, 11],
       PARSE_MONTH_ERR:  'Illegal month given as argument.',
       SEASON_MONTH_ERR: 'Month out of season.',
       NEGATIVE_YEAR:    'Negative year range.',
