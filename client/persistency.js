@@ -100,10 +100,20 @@ function Persistency(map, control, label, layer, SETTINGS) {
   this.getUrl = getUrl;
 
   function constructUrl_() {
-    var url = [
-      '?x=' + map.getX().toFixed(5),
-      'y=' + map.getY().toFixed(5), 
-      'z=' + map.getZ(),
+    var url = '';
+    if (label.getLabel()) {
+      url += [
+        '?x=' + label.getX().toFixed(5),
+        'y=' + label.getY().toFixed(5), 
+      ].join('&');
+    } else {
+      url += [
+        '?x=' + map.getX().toFixed(5),
+        'y=' + map.getY().toFixed(5), 
+      ].join('&');
+    }
+    url += [
+      '&z=' + map.getZ(),
       'date=' + utils.formatDate(control.getDate()),
       'basemap=' + map.getBaseMap(),
     ].join('&');

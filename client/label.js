@@ -17,7 +17,7 @@ function Label(map, labelOnInit, getUrl) {
       content.innerHTML +=
           '<strong>' + proj + '</strong> ' + answer[proj] + '<br>';
     }
-    map.setPos(labelPosition.x, labelPosition.y, map.getZoom());
+    //map.setPos(labelPosition.x, labelPosition.y, map.getZoom());
     currentLabel = map.addLabel(labelPosition.x, labelPosition.y, content);
     content.innerHTML +=
         '<a href="' + getUrl() + '">Shareable link</a>';
@@ -49,6 +49,18 @@ function Label(map, labelOnInit, getUrl) {
     }
   }
   this.clearLabel = clearLabel;
+
+  function getX() {
+    if (!currentLabel) return null;
+    return labelPosition.x;
+  }
+  this.getX = getX;
+
+  function getY() {
+    if (!currentLabel) return null;
+    return labelPosition.y;
+  }
+  this.getY = getY;
 }
 
 export {Label};
