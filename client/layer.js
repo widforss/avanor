@@ -32,7 +32,8 @@ function Layer(map, layerSelect, firstLayer, SETTINGS, getDate, setState) {
 
   function currentLayer() {
     if (currentName) return currentName;
-    return firstLayer;
+    if (firstLayer != 'null') return firstLayer;
+    return null;
   }
   this.currentLayer = currentLayer;
 
