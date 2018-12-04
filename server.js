@@ -86,6 +86,10 @@ function Server() {
 
     function respond_(res) {
       return (data, status) => {
+        if (res.headersSent) {
+          console.error(new Error('Double response was sent.'));
+          return;
+        }
         status = status ? status : 200;
         res.status(status).send(data);
       }
