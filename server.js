@@ -102,7 +102,8 @@ function Server() {
 
     function httpRedirect_(req, res, next) {
       if (process.env.NODE_ENV == 'production') {
-        res.set('Strict-Transport-Security', 'max-age=31536000; includeSubDomains; preload');
+        res.set('Strict-Transport-Security',
+                'max-age=31536000; includeSubDomains; preload');
       }
       next();
     }
