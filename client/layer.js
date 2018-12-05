@@ -11,6 +11,10 @@ function Layer(map, layerSelect, firstLayer, SETTINGS, getDate, setState) {
 
   layerSelect.setFunc(selectEvent_);
 
+  var slopesRequest = new utils.Request((text) => {
+    var creds = JSON.parse(text)
+    map.setSlopes(creds['mapid'], creds['token']);
+  });
   var mapRequest = new utils.Request((text) => {
     update_(JSON.parse(text));
   });
@@ -19,10 +23,10 @@ function Layer(map, layerSelect, firstLayer, SETTINGS, getDate, setState) {
     map.setEe(creds['mapid'], creds['token']);
   });
 
+  slopesRequest.run('./api/slopes');
+
   function updateMap() {
-    var xhr = new XMLHttpRequest(),
-        method = "GET",
-        date = utils.formatDate(getDate()),
+    var date = utils.formatDate(getDate()),
         bounds = JSON.stringify(map.getBounds()),
         url = "./api/name/" + date + '?bounds=' + bounds;
 

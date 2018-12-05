@@ -51,7 +51,8 @@ var SETTINGS = {
     },
   },
   MAP: {
-    EE_LAYER_Z: 0,
+    SLOPES_LAYER_Z: 0,
+    EE_LAYER_Z: 1,
     zoomControl: false,
     mapTypeControl: false,
     scaleControl: false,

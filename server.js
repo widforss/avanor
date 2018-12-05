@@ -61,6 +61,10 @@ function Server() {
       md_(path.join('./md', req.params.file), res);
     });
     
+    app.get('/api/slopes', function(req, res) {
+      sentinel.getSlopes(respond_(res));
+    });
+
     app.get('/api/map/:id', function(req, res) {
       var force = req.query.force ? true : false;
       sentinel.getRender(req.params.id, force, respond_(res));

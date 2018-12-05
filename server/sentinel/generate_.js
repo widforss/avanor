@@ -116,6 +116,16 @@ function SentinelGenerate(SETTINGS) {
                    .simplify(2 * SETTINGS.VECTOR_SCALE);
   }
   this.getCoverage = getCoverage;
+
+  function getSlopes() {
+    var slopes = ee.Terrain.slope(terrain);
+    var mask = slopes.lt(SETTINGS.ANGLES[1])
+                 .multiply(slopes.gte(SETTINGS.ANGLES[0]))
+                 .resample('bicubic')
+                 .rename('slopes');
+    return mask.mask(mask);
+  }
+  this.getSlopes = getSlopes;
   
   /**
    * Get image properties given image name like
@@ -320,7 +330,6 @@ function SentinelGenerate(SETTINGS) {
    *      - band `delta`                 Delta image from Sentinel-1 image.
    *      - band `shadow`                Satellite shadow for this orbit.
    *      - band `terrain`               Terrain model.
-   *      - band `slopes`                Potential avalanche terrain.
    */
   function delta_(collectionPair) {
     var action = ee.ImageCollection(collectionPair.get('action'));
@@ -336,15 +345,11 @@ function SentinelGenerate(SETTINGS) {
     var delta = actionImg.subtract(refImg).select(0).rename('delta');
     
     var orbitNum  = action.first().get('relativeOrbitNumber_start');
-    var slopes            = ee.Terrain.slope(terrain);
-    var slopemask = slopes.lt(SETTINGS.ANGLES[1])
-                          .multiply(slopes.gte(SETTINGS.ANGLES[0]))
-                          .rename('slopes');
     var shadow    = shadows.filter(ee.Filter.eq('orbit', orbitNum))
                            .first()
                            .rename('shadow');
     
-    var image  = delta.addBands(shadow).addBands(terrain).addBands(slopemask);
+    var image  = delta.addBands(shadow).addBands(terrain);
     var render = render_(image);
 
     var imgSize = ee.Image(render).select(0).reduceRegion({
@@ -375,7 +380,6 @@ function SentinelGenerate(SETTINGS) {
     var delta   = image.select('delta');
     var shadow  = image.select('shadow');
     var terrain = image.select('terrain');
-    var slopes  = image.select('slopes');
 
     delta = ee.Image(0).blend(delta.log10()
                                    .unitScale(-2.5, -0.3)
@@ -383,19 +387,18 @@ function SentinelGenerate(SETTINGS) {
                                    .add(0.2)
                                    .multiply(shadow)
                                    .pow(2));
-    slopes = slopes.multiply(shadow).multiply(SETTINGS.OPACITY);
-    shadow = shadow.neq(1).multiply(SETTINGS.OPACITY/2);
+    shadow = shadow.neq(1).multiply(SETTINGS.OPACITY);
     
     var bg = ee.Image(1);
     if (SETTINGS.SEAMASK) {
       bg = bg.mask(terrain.neq(0));
     }
     
-    var blue  = bg.subtract(delta).subtract(slopes).subtract(shadow);
+    var blue  = bg.subtract(delta).subtract(shadow);
+    var red   = bg.subtract(shadow);
     var green = bg.subtract(delta).subtract(shadow);
-    var red   = bg.subtract(slopes).subtract(shadow);
 
-    var mask = red.lt(0.99).or(green.lt(0.79)).or(blue.lt(0.79))
+    var mask = red.lt(0.99).or(blue.lt(0.79));
     return ee.Image.rgb(red, green, blue).mask(mask);
   }
 }

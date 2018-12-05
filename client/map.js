@@ -62,6 +62,11 @@ function Map(div, initPos, SETTINGS) {
                                 eeLayers[SETTINGS.EE_LAYER_Z]);
       eeHidden[SETTINGS.EE_LAYER_Z] = false;
     }
+    if (eeLayers[SETTINGS.SLOPES_LAYER_Z]) {
+      map.overlayMapTypes.setAt(SETTINGS.SLOPES_LAYER_Z,
+                                eeLayers[SETTINGS.SLOPES_LAYER_Z]);
+      eeHidden[SETTINGS.SLOPES_LAYER_Z] = false;
+    }
   }
   this.toggleEeTo = toggleEeTo;
 
@@ -69,6 +74,10 @@ function Map(div, initPos, SETTINGS) {
     if (map.overlayMapTypes.getAt(SETTINGS.EE_LAYER_Z)) {
       map.overlayMapTypes.removeAt(SETTINGS.EE_LAYER_Z);
       eeHidden[SETTINGS.EE_LAYER_Z] = true;
+    }
+    if (map.overlayMapTypes.getAt(SETTINGS.SLOPES_LAYER_Z)) {
+      map.overlayMapTypes.removeAt(SETTINGS.SLOPES_LAYER_Z);
+      eeHidden[SETTINGS.SLOPES_LAYER_Z] = true;
     }
   }
   this.toggleEeFrom = toggleEeFrom;
@@ -80,24 +89,14 @@ function Map(div, initPos, SETTINGS) {
   this.removeEe = removeEe;
 
   function setEe(mapid, token) {
-    const eeMapOptions = {
-      'getTileUrl': (tile, zoom) => {
-        const baseUrl = 'https://earthengine.googleapis.com/map';
-        const url = [baseUrl, mapid, zoom, tile.x, tile.y].join('/');
-        return `${url}?token=${token}`;
-      },
-      'tileSize': new google.maps.Size(256, 256)
-    };
-
-    eeLayers[SETTINGS.EE_LAYER_Z] =
-        new google.maps.ImageMapType(eeMapOptions);
-
-    if (!eeHidden[SETTINGS.EE_LAYER_Z]) {
-      map.overlayMapTypes.setAt(SETTINGS.EE_LAYER_Z,
-                                eeLayers[SETTINGS.EE_LAYER_Z]);
-    }
+    setEeLayer(mapid, token, SETTINGS.EE_LAYER_Z)
   }
   this.setEe = setEe;
+
+  function setSlopes(mapid, token) {
+    setEeLayer(mapid, token, SETTINGS.SLOPES_LAYER_Z)
+  }
+  this.setSlopes = setSlopes;
 
   function getBounds() {
     var latlonbounds = map.getBounds().toJSON();
@@ -157,6 +156,26 @@ function Map(div, initPos, SETTINGS) {
     return map.getZoom();
   }
   this.getZ = getZ;
+
+  function setEeLayer(mapid, token, z) {
+    const eeMapOptions = {
+      'getTileUrl': (tile, zoom) => {
+        const baseUrl = 'https://earthengine.googleapis.com/map';
+        const url = [baseUrl, mapid, zoom, tile.x, tile.y].join('/');
+        return `${url}?token=${token}`;
+      },
+      'tileSize': new google.maps.Size(256, 256)
+    };
+
+    eeLayers[z] =
+        new google.maps.ImageMapType(eeMapOptions);
+
+    if (!eeHidden[z]) {
+      map.overlayMapTypes.setAt(z,
+                                eeLayers[z]);
+    }
+  }
+  this.setEeLayer = setEeLayer;
 }
 
 export {Map};

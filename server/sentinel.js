@@ -16,6 +16,8 @@ function Sentinel(SETTINGS) {
   var orbitCache        = new SentinelCache(SETTINGS.CACHE);
   var sentinelGenerate  = new SentinelGenerate(SETTINGS.GEN);
 
+  var slopes = sentinelGenerate.getSlopes().getMap({palette: '#99ff99'});
+
   [SETTINGS.ROLL_LONG, SETTINGS.ROLL_SHORT].forEach((roll) => {
     if (roll) {
       new SentinelRoll(roll, sentinelGenerate.parseDate, (dateString) => {
@@ -23,6 +25,11 @@ function Sentinel(SETTINGS) {
       })
     }
   });
+
+  function getSlopes(callback) {
+    callback({'mapid': slopes.mapid, 'token': slopes.token});
+  }
+  this.getSlopes = getSlopes;
 
   function getRender(name, force, callback) {
       var properties;
