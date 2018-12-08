@@ -14,9 +14,8 @@ function Sentinel(SETTINGS) {
   var renderCache       = new SentinelCache(SETTINGS.CACHE);
   var nameCache         = new SentinelCache(SETTINGS.CACHE);
   var orbitCache        = new SentinelCache(SETTINGS.CACHE);
+  var slopeCache        = new SentinelCache(SETTINGS.CACHE);
   var sentinelGenerate  = new SentinelGenerate(SETTINGS.GEN);
-
-  var slopes = sentinelGenerate.getSlopes().getMap({palette: '#99ff99'});
 
   [SETTINGS.ROLL_LONG, SETTINGS.ROLL_SHORT].forEach((roll) => {
     if (roll) {
@@ -27,7 +26,13 @@ function Sentinel(SETTINGS) {
   });
 
   function getSlopes(callback) {
-    callback({'mapid': slopes.mapid, 'token': slopes.token});
+    slopeCache.search('slopes', false, (map) => {
+      callback(map);
+    }, (cacheback) => {
+      sentinelGenerate.getSlopes().getMap({palette: '#99ff99'}, (slopes) => {
+        cacheback({'mapid': slopes.mapid, 'token': slopes.token});
+      });
+    })
   }
   this.getSlopes = getSlopes;
 
