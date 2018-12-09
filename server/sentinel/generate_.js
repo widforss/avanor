@@ -389,17 +389,17 @@ function SentinelGenerate(SETTINGS) {
                                    .pow(2));
     shadow = shadow.resample('bicubic').neq(1).multiply(SETTINGS.OPACITY);
     
-    var bg = ee.Image(0.95);
+    var bg = ee.Image(1);
     if (SETTINGS.SEAMASK) {
       bg = bg.mask(terrain.neq(0));
     }
     
     // Get Colorbrewers recommended color #d95f02
-    var red   = bg.subtract(delta.multiply(38/255)).subtract(shadow);
-    var green = bg.subtract(delta.multiply(160/255)).subtract(shadow);
-    var blue  = bg.subtract(delta.multiply(253/255)).subtract(shadow);
+    var red   = bg.subtract(shadow);
+    var green = bg.subtract(delta).subtract(shadow);
+    var blue  = bg.subtract(delta).subtract(shadow);
 
-    var mask = red.lt(0.81).or(blue.lt(0.74));
+    var mask = red.lt(0.81).or(blue.lt(0.79));
     return ee.Image.rgb(red, green, blue).mask(mask);
   }
 }
