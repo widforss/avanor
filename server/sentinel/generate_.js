@@ -387,7 +387,7 @@ function SentinelGenerate(SETTINGS) {
                                    .add(0.2)
                                    .multiply(shadow)
                                    .pow(2));
-    shadow = shadow.neq(1).multiply(SETTINGS.OPACITY);
+    shadow = shadow.resample('bicubic').neq(1).multiply(SETTINGS.OPACITY);
     
     var bg = ee.Image(0.95);
     if (SETTINGS.SEAMASK) {
