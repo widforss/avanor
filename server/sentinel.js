@@ -29,7 +29,7 @@ function Sentinel(SETTINGS) {
     slopeCache.search('slopes', false, (map) => {
       callback(map);
     }, (cacheback) => {
-      sentinelGenerate.getSlopes().getMap({palette: '#99ff99'}, (slopes) => {
+      sentinelGenerate.getSlopes().getMap({palette: '#7570b3'}, (slopes) => {
         cacheback({'mapid': slopes.mapid, 'token': slopes.token});
       });
     })

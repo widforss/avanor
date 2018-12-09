@@ -6,13 +6,13 @@ Avanor is an avalanche observation tool. It uses [Sentinel&#8209;1](https://sent
 
 ![Avalanche](/static/media/help/avalanche.png)
 
-### <svg viewBox="-1 -1 2 2"><circle r="1" fill="#ff0909"/></svg> Detected changes and avalanches
+### <svg viewBox="-1 -1 2 2"><circle r="1" fill="#d95f02"/></svg> Detected changes and avalanches
 
-All Avanor images have a timespan of 6&nbsp;or&nbsp;12 days. The changes are shown in red on the map, and while there will be some noise (weak red spots scattered over the map), detected avalanches are easily recognized as red stripes or areas. Due to the large temporal resolution the same avalanche may end up on multiple days worth of images. To more exactly get the date of an avalanche one can step back one day at a time and find the first image that shows that specific avalanche.
+All Avanor images have a timespan of 6&nbsp;or&nbsp;12 days. The changes are shown in orange on the map, and while there will be some noise (weak orange spots scattered over the map), detected avalanches are easily recognized as orange stripes or areas. Due to the large temporal resolution the same avalanche may end up on multiple days worth of images. To more exactly get the date of an avalanche one can step back one day at a time and find the first image that shows that specific avalanche.
 
-### <svg viewBox="-1 -1 2 2"><circle r="1" fill="#99ff99"/></svg> Avalanche terrain
+### <svg viewBox="-1 -1 2 2"><circle r="1" fill="#7570b3"/></svg> Avalanche terrain
 
-Most avalanches start in terrain that is between 30&#8209;40°. These areas are marked in green on the map.
+Most avalanches start in terrain that is between 30&#8209;40°. These areas are marked in purple on the map.
 
 ### <svg viewBox="-1 -1 2 2"><circle r="1" fill="#cccccc"/></svg> Radio shadow
 
