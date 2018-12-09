@@ -5,7 +5,7 @@ import {returnPopupClass} from "./map/popup.js";
  */
 function Map(div, initPos, SETTINGS) {
   var Popup = returnPopupClass();
-  var map = new google.maps.Map(div, SETTINGS);
+  var map = new google.maps.Map(div, SETTINGS.MAP);
 
   var eeLayers = [];
   var eeHidden = [];
@@ -14,6 +14,8 @@ function Map(div, initPos, SETTINGS) {
   var basemap;
 
   setPos(initPos.x, initPos.y, initPos.z);
+
+  map.data.setStyle(SETTINGS.DATA);
 
   function onMove(func) {
     map.addListener('center_changed', func);
@@ -156,6 +158,11 @@ function Map(div, initPos, SETTINGS) {
     return map.getZoom();
   }
   this.getZ = getZ;
+
+  function addGeoJSON(url) {
+    map.data.loadGeoJson(url);
+  }
+  this.addGeoJSON = addGeoJSON;
 
   function setEeLayer(mapid, token, z) {
     const eeMapOptions = {

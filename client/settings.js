@@ -53,19 +53,26 @@ var SETTINGS = {
   MAP: {
     SLOPES_LAYER_Z: 0,
     EE_LAYER_Z: 1,
-    zoomControl: false,
-    mapTypeControl: false,
-    scaleControl: false,
-    streetViewControl: false,
-    rotateControl: false,
-    fullscreenControl: false,
-    clickableIcons: false,
-    styles: [{
-      'stylers': [{
-        'featureType': 'landscape.natural.terrain',
-        'lightness': 50,
+    MAP: {
+      zoomControl: false,
+      mapTypeControl: false,
+      scaleControl: false,
+      streetViewControl: false,
+      rotateControl: false,
+      fullscreenControl: false,
+      clickableIcons: false,
+      styles: [{
+        'stylers': [{
+          'featureType': 'landscape.natural.terrain',
+          'lightness': 50,
+        }]
       }]
-    }]
+    },
+    DATA: {
+      strokeColor: 'blue',
+      fillOpacity: 0.1,
+      clickable: false,
+    }
   },
 };
 

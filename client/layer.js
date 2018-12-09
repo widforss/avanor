@@ -25,6 +25,8 @@ function Layer(map, layerSelect, firstLayer, SETTINGS, getDate, setState) {
 
   slopesRequest.run('./api/slopes');
 
+  map.addGeoJSON('/static/geojson/se-forecast-areas.geojson');
+
   function updateMap() {
     var date = utils.formatDate(getDate()),
         bounds = JSON.stringify(map.getBounds()),
