@@ -5,7 +5,7 @@ var SETTINGS = {
   PERSISTENCY: {
     INITPOS: {x: 14.6, y: 66.5, z: 12},
     DEFAULT_DATE: '2017-01-30',
-    DEFAULT_MAP: 'Terrain',
+    DEFAULT_MAP: 'SE & NO',
     COOKIE: {
       COOKIELIFE: 30 * 24 * 3600 * 1000,
     },
@@ -40,39 +40,14 @@ var SETTINGS = {
     },
     NAV: {
       ZOOM:        [0, 24],
-      MAPS: [
-        'Roadmap',
-        'Satellite',
-        'Hybrid',
-        'Terrain',
-      ],
+      MAPS:        ['SE & NO'],
       HIDE_MAP:    'Hide',
       SHOW_MAP:    'Show',
     },
   },
   MAP: {
-    SLOPES_LAYER_Z: 0,
-    EE_LAYER_Z: 1,
-    MAP: {
-      zoomControl: false,
-      mapTypeControl: false,
-      scaleControl: false,
-      streetViewControl: false,
-      rotateControl: false,
-      fullscreenControl: false,
-      clickableIcons: false,
-      styles: [{
-        'stylers': [{
-          'featureType': 'landscape.natural.terrain',
-          'lightness': 50,
-        }]
-      }]
-    },
-    DATA: {
-      strokeColor: 'blue',
-      fillOpacity: 0.1,
-      clickable: false,
-    }
+    SLOPES_LAYER_Z: 4,
+    EE_LAYER_Z: 5,
   },
 };
 

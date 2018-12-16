@@ -11,14 +11,18 @@
     <meta name="viewport" content="initial-scale=1.0">
     <meta charset="utf-8">
     <link rel="stylesheet" href="./static/style/style.css">
-    <link rel="stylesheet" href="./static/style/map_popup.css">
+    <link rel="stylesheet" href="./static/style/ol_popup.css">
     <title>{{ title }}</title>
     <link rel="icon" type="image/png" href="./static/media/logo/logo256.png"/>
   </head>
   <body id="body">
     <div class="version">v. {{ version }}</div>
+    <div id="mapid"></div>
+    <div id="popup" class="ol-popup">
+      <a href="#" id="popup-closer" class="ol-popup-closer"></a>
+      <div id="popup-content"></div>
+    </div>
     <script src="./client.js"></script>
-    <script defer src="{{ mapUrl }}?key={{ mapKey }}&amp;callback=run"></script>
     <noscript>
       <div class="jsWarning">
         Avanor requires a browser with JavaScript. Please activate JavaScript.

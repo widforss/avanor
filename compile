@@ -1,9 +1,0 @@
-#!/bin/bash
-node_modules/google-closure-compiler/cli.js \
-  --js='client/**.js' \
-  --entry_point='client/main.js' \
-  --js_output_file='client.js' \
-  --dependency_mode='STRICT' \
-  --compilation_level='ADVANCED' \
-  --externs='node_modules/google-closure-compiler/contrib/externs/maps/google_maps_api_v3.js' \
-#  --debug

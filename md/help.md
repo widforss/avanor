@@ -49,12 +49,6 @@ The image name `B29A(2017-01-24--2017-01-30,6)` contains the following data.
 
 Note that there may be multiple images to view on a given day. This is indicated by a small arrow to the right of this selector.
 
-### Base map selector
-
-![Base map selector](/static/media/help/basemap.png)
-
-Selects the base map. This might be a standard map, a topo map, aerial imagery or a hybrid map.
-
 ### Image toggle
 
 ![Image toggle](/static/media/help/toggle.png)
@@ -75,6 +69,7 @@ Opens this help window.
 * [GSD-Höjddata, grid 50+ hdb](https://www.lantmateriet.se/sv/Kartor-och-geografisk-information/Hojddata/GSD-Hojddata-grid-50-/) ©&nbsp;[Lantmäteriet](https://www.lantmateriet.se/) [(CC0 1.0)](https://creativecommons.org/publicdomain/zero/1.0/legalcode.sv)
 * [GSD-Höjddata, grid 50+ nh](https://www.lantmateriet.se/sv/Kartor-och-geografisk-information/Hojddata/GSD-Hojddata-grid-50-/) ©&nbsp;[Lantmäteriet](https://www.lantmateriet.se/) [(CC0 1.0)](https://creativecommons.org/publicdomain/zero/1.0/legalcode.sv)
 * [GSD-Översiktskartan vektor](https://www.lantmateriet.se/sv/Kartor-och-geografisk-information/Kartor/oversiktskartan1/) ©&nbsp;[Lantmäteriet](https://www.lantmateriet.se/) [(CC0 1.0)](https://creativecommons.org/publicdomain/zero/1.0/legalcode.sv)
+* Lavinprognosområden ©&nbsp;[Naturvårdsverket](https://www.lavinprognoser.se/)
 
 Generated images are subject to [CC&nbsp;BY&#8209;SA&nbsp;3.0&nbsp;IGO](https://creativecommons.org/licenses/by-sa/3.0/igo/).
 

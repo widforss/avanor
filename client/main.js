@@ -1,6 +1,6 @@
 import {Layer} from "./layer.js";
 import {Control} from "./control.js";
-import {Map} from "./map.js";
+import {Map} from "./ol.js";
 import {Label} from "./label.js";
 import {ReadState, Persistency} from "./persistency.js";
 import {SETTINGS} from "./settings.js";
@@ -15,11 +15,8 @@ function run() {
                 window.location.href.substring(window.location.protocol.length);
   }
 
-  var mapDiv = document.createElement('div');
-  mapDiv.classList.add('map');
-
   var readState = new ReadState(SETTINGS.PERSISTENCY);
-  var map = new Map(mapDiv, readState.mapInit(), SETTINGS.MAP);
+  var map = new Map('mapid', readState.mapInit(), SETTINGS.MAP);
 
   var control = new Control(map,
                             readState.controlInit(),
@@ -39,12 +36,10 @@ function run() {
                                     layer,
                                     SETTINGS.PERSISTENCY);
 
-  map.onLoad(updateMap_);
-  map.onMove(updateMap_);
+  map.onMove(mapMoved_);
   map.onClick(label.setLabel);
   control.getLayerSelect().setFunc(label.clearLabel);
 
-  document.getElementById('body').appendChild(mapDiv);
   document.getElementById('body').appendChild(control.getDiv());
 
   function updateDate_() {
@@ -54,6 +49,10 @@ function run() {
 
   function updateMap_() {
     label.clearLabel();
+    mapMoved_();
+  }
+
+  function mapMoved_() {
     window.clearTimeout(timeOutKey);
     control.getLayerSelect().setText(SETTINGS.SEARCHING_STR);
     timeOutKey = window.setTimeout(() => {
@@ -74,4 +73,5 @@ function run() {
     }
   }
 }
-window['run'] = run;
+
+run();

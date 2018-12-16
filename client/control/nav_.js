@@ -17,7 +17,9 @@ function ControlNav(map, basemap, SETTINGS, toggle, setState) {
   });
 
   var mapSelect = new controlUtils.Select(SETTINGS.MAPS, setBaseMap_);
-  mapSelect.setValue(SETTINGS.MAPS.indexOf(basemap));
+  var basemapIdx = SETTINGS.MAPS.indexOf(basemap);
+  basemapIdx = basemapIdx == -1 ? 0 : basemapIdx;
+  mapSelect.setValue(basemapIdx);
   setBaseMap_();
 
   var mapToggle = new controlUtils.Button(SETTINGS.HIDE_MAP, () => {

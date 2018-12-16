@@ -16,7 +16,6 @@ const pjson      = require('./package.json');
 const SETTINGS   = require('./server/settings.js');
 
 function Server() {
-  const mapKey   = fs.readFileSync('./map.key').slice(0, -1);
   const trackId  = fs.readFileSync('./track.id').slice(0, -1);
   var markdownIt = new MarkdownIt().set({ html: true });
 
@@ -48,9 +47,8 @@ function Server() {
     app.get('/', function(req, res) {
       var title    = SETTINGS.TITLE;
       var trackUrl = SETTINGS.TRACK_URL;
-      var mapUrl   = SETTINGS.MAP_URL;
       var version  = pjson.version;
-      res.render('index', {title, trackUrl, mapUrl, trackId, mapKey, version});
+      res.render('index', {title, trackUrl, trackId, version});
     });
     
     app.get('/client.js', function(req, res) {

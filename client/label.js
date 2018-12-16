@@ -23,9 +23,7 @@ function Label(map, labelOnInit, getUrl) {
         '<a href="' + getUrl() + '">Shareable link</a>';
   });
 
-  if (labelOnInit) map.onLoad(() => {
-    setLabel(map.getX(), map.getY());
-  });
+  if (labelOnInit) setLabel(map.getX(), map.getY());
 
   function setLabel(x, y) {
     if (currentLabel) {
