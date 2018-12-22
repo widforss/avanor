@@ -332,10 +332,26 @@ function Map(div, initPos, SETTINGS, updateMap) {
       }),
     });
 
+    eeLayers[z].getSource().on('tileloaderror', function(e) {
+      exponentialBackoff_(e.tile);
+    });
+
     if (!eeHidden[z]) {
       map.addLayer(eeLayers[z]);
       eeLayers[z].setZIndex(z);
     }
+  }
+
+  function exponentialBackoff_(tile) {
+    if (!tile.tries) {
+      tile.tries = 0;
+    } else if (tile.tries == 5) {
+      return;
+    }
+    var delay =
+        Math.random() * SETTINGS.EXP_TIMEOUT * Math.pow(2, tile.tries++);
+
+    setTimeout(() => { tile.load(); }, delay);
   }
 }
 

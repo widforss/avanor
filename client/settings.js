@@ -48,6 +48,7 @@ var SETTINGS = {
   MAP: {
     SLOPES_LAYER_Z: 4,
     EE_LAYER_Z: 5,
+    EXP_TIMEOUT: 500,
   },
 };
 
