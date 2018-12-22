@@ -17,7 +17,7 @@ import proj4 from 'proj4';
 
 import {Popup} from './ol/popup.js';
 
-function Map(div, initPos, SETTINGS) {
+function Map(div, initPos, SETTINGS, updateMap) {
   var eeLayers = [];
   var eeHidden = false;
   var labelCounter = 0;
@@ -50,7 +50,7 @@ function Map(div, initPos, SETTINGS) {
     0.14929107086948487,
   ];
 
-  var popup = new Popup();
+  var popup = new Popup(updateMap);
 
   var map = new OlMap({
     target : div,

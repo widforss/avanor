@@ -16,7 +16,7 @@ function run() {
   }
 
   var readState = new ReadState(SETTINGS.PERSISTENCY);
-  var map = new Map('mapid', readState.mapInit(), SETTINGS.MAP);
+  var map = new Map('mapid', readState.mapInit(), SETTINGS.MAP, updateMap_);
 
   var control = new Control(map,
                             readState.controlInit(),

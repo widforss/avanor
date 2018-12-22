@@ -1,6 +1,6 @@
 import Overlay from 'ol/Overlay.js';
 
-function Popup() {
+function Popup(updateMap) {
   var container = document.getElementById('popup');
   var content = document.getElementById('popup-content');
   var closer = document.getElementById('popup-closer');
@@ -16,6 +16,7 @@ function Popup() {
   closer.onclick = function() {
     overlay.setPosition(undefined);
     closer.blur();
+    updateMap();
     return false;
   };
 
