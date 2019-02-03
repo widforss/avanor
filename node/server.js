@@ -11,12 +11,12 @@ const Errors     = require('./server/errors.js');
 const Sentinel    = require('./server/sentinel.js');
 const Coordinates = require('./server/coordinates.js');
 
-const privateKey = require('./privatekey.json');
+const privateKey = require('../privatekey-read.json');
 const pjson      = require('./package.json');
 const SETTINGS   = require('./server/settings.js');
 
 function Server() {
-  const trackId  = fs.readFileSync('./track.id').slice(0, -1);
+  const trackId  = fs.readFileSync('../track.id').slice(0, -1);
   var markdownIt = new MarkdownIt().set({ html: true });
 
   ee.data.authenticateViaPrivateKey(privateKey, initialize_, function(e) {

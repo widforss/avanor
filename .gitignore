@@ -1,8 +1,8 @@
-client.js
-privatekey.json
+privatekey*.json
 track.id
-map.key
+ee.creds
+node/client.js
+node/node_modules
+node/npm-debug.log
 npm-debug.log
-node_modules
 .node-xmlhttprequest-sync-*
-app.yaml

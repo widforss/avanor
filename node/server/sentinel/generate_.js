@@ -255,14 +255,25 @@ function SentinelGenerate(SETTINGS) {
    * @return {ee.ImageCollection} The images matching the search.
    */
   function collection_(bounds) {
-    var allImgs = ee.ImageCollection(SETTINGS.COLLECTION)
+
+    var secImgs = ee.ImageCollection(SETTINGS.SEC_COLLECTION)
                     .filter(ee.Filter.eq('instrumentMode', SETTINGS.MODE))
-                    .filter(ee.Filter
-                              .listContains('transmitterReceiverPolarisation',
-                                            SETTINGS.POLARISATION))
-                    .select([SETTINGS.POLARISATION])
                     .filterBounds(terrain.geometry())
-                    .sort('system:time_start', false);
+                    .map((img) => {
+                      return img.select(0).rename([SETTINGS.POLARISATION])
+                    });
+
+    var primImgs = ee.ImageCollection(SETTINGS.COLLECTION)
+                     .filter(ee.Filter.eq('instrumentMode', SETTINGS.MODE))
+                     .filter(ee.Filter
+                               .listContains('transmitterReceiverPolarisation',
+                                             SETTINGS.POLARISATION))
+                     .select([SETTINGS.POLARISATION])
+                     .filterBounds(terrain.geometry())
+
+    var allImgs = primImgs.merge(secImgs)
+                          .distinct(ee.SelectorSet('system:index'))
+                          .sort('system:time_start', false);
     
     if (bounds && SETTINGS.VIEWPORT_STRIP) {
       var filtered = allImgs.filterBounds(bounds)
