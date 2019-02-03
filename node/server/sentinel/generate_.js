@@ -260,7 +260,9 @@ function SentinelGenerate(SETTINGS) {
                     .filter(ee.Filter.eq('instrumentMode', SETTINGS.MODE))
                     .filterBounds(terrain.geometry())
                     .map((img) => {
-                      return img.select(0).rename([SETTINGS.POLARISATION])
+                      var image = img.select(0)
+                                     .rename([SETTINGS.POLARISATION])
+                      return image.mask(image.neq(0));
                     });
 
     var primImgs = ee.ImageCollection(SETTINGS.COLLECTION)
