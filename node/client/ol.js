@@ -82,14 +82,19 @@ function Map(div, initPos, SETTINGS, updateMap) {
               32,
               16,
               8,
-              4,
-              2,
-              1,
-              0.5,
+              // Changed due to licensing issues.
+              //4,
+              //2,
+              //1,
+              //0.5,
             ],
             'EPSG:25833',
             '/static/geojson/se-simplified.geojson',
-            'https://kso.etjanster.lantmateriet.se/karta/topowebb/v1.1/wmts?' +
+
+            // Changed due to licensing issues. The current is CC0.
+            //'https://kso.etjanster.lantmateriet.se/karta/topowebb/v1.1/wmts?'+
+            'https://api.lantmateriet.se/open/topowebb-ccby/v1/wmts/' +
+                'token/f6004f59-323f-36ac-b83c-be300ee533d7/?' +
                 'SERVICE=WMTS&REQUEST=GetTile&VERSION=1.0.0&LAYER=topowebb&' +
                 'STYLE=default&TILEMATRIXSET=3006&' +
                 'TILEMATRIX={z}&TILEROW={y}&TILECOL={x}&FORMAT=image/png',
