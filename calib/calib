@@ -1,0 +1,179 @@
+#!/usr/bin/env python3
+
+import os, sys, requests, zipfile, ee
+from sentinelsat.sentinel import SentinelAPI, read_geojson, geojson_to_wkt
+from google.cloud import storage, exceptions
+
+olddir = os.getcwd()
+abspath = os.path.abspath(__file__)
+dname = os.path.dirname(abspath)
+os.chdir(dname)
+
+os.environ['GOOGLE_APPLICATION_CREDENTIALS'] = '../privatekey-edit.json'
+with open('../scihub.creds', 'r') as f:
+    esacreds=f.read().replace('\n', '')
+    f.close()
+
+SETTINGS = {
+    'DWN_FMT': '.zip',
+    'IMG_FMT': '.tif',
+    'DWN_DIR': './downloads',
+    'CAL_DIR': './calibrated',
+    'GPH_FIL': 'graph.xml',
+    'GPH_BIN': '~/snap/bin/gpt',
+    'LOG_FIL': 'calib.log',
+    'GOO_BUC': 'earthengine-avanor',
+    'GEE_COL': 'users/widforss/avanor/daily',
+    'GEE_1ST': 'COPERNICUS/S1_GRD_FLOAT',
+    'ORB_URL': 'https://qc.sentinel1.eo.esa.int/api/v1/?' + \
+               'product_type=AUX_RESORB&' + \
+               'validity_stop__gt={start}&' + \
+               'validity_start__lt={stop}&' + \
+               'sentinel1__mission=S1{platform}&' + \
+               'ordering=-creation_date&' + \
+               'page_size=1',
+    'ERR_LOG': 'failed.log',
+    'SET_SLP':  10,
+    'COP_USR': esacreds.split(':', 2)[0],
+    'COP_PWD': esacreds.split(':', 2)[1],
+    'COP_ADR': 'https://scihub.copernicus.eu/dhus',
+}
+
+def errorHandler(filesDict, thisId, errLog):
+    del filesDict[thisId]
+    f = open(errLog, 'a+')
+    f.write(thisId + '\n')
+    f.close()
+
+def download(files):
+    print('Downloading files:')
+    for id in files.keys():
+        print(id)
+    dwn_results = api.download_all(products, SETTINGS['DWN_DIR'])
+    for id in map(lambda x: x.get('title'), dwn_results[0].values()):
+        orbit(files[id])
+    for uuid in dwn_results[1]:
+        id = products[uuid].get('title')
+        errorHandler(files, id, SETTINGS['ERR_LOG'])
+
+def orbit(file):
+    def getfile(url, name, file):
+        response = requests.get(url)
+        if response.status_code == 200:
+            dir = os.path.join(
+                os.path.expanduser('~/.snap/auxdata/Orbits/Sentinel-1/RESORB'),
+                'S1' + file['properties']['platform'],
+                file['properties']['year'],
+                file['properties']['month']
+            )
+            if not os.path.exists(dir):
+                os.makedirs(dir)
+            filename = os.path.join(dir, name + '.zip')
+            zip = zipfile.ZipFile(filename, 'w')
+            zip.writestr(name, response.content)
+            zip.close()
+
+    apiurl = SETTINGS['ORB_URL'].format(
+        start=file['properties']['start'],
+        stop=file['properties']['stop'],
+        platform=file['properties']['platform']
+    )
+    response = requests.get(apiurl)
+    if response.status_code == 200:
+        rjson = response.json()['results']
+        for orbitjson in rjson:
+            fileurl = orbitjson['remote_url']
+            name = orbitjson['physical_name']
+            getfile(fileurl, name, file)
+            process(file)
+        if len(rjson) == 0:
+            errorHandler(files, file['id'], SETTINGS['ERR_LOG'])
+    else:
+        errorHandler(files, file['id'], SETTINGS['ERR_LOG'])
+
+def process(file):
+    gptCommand = ' '.join((
+        SETTINGS['GPH_BIN'],
+        SETTINGS['GPH_FIL'],
+        '-Psource=' + file['dwnfile'],
+        '-Ptarget=' + file['calfile']))
+    exitcode = os.system(gptCommand)
+    if exitcode == 0:
+        os.remove(file['dwnfile'])
+        upload(file)
+    else:
+        errorHandler(files, file['id'], SETTINGS['ERR_LOG'])
+
+def upload(file):
+    try:
+        blob = bucket.blob(file['file'])
+        blob.upload_from_filename(file['calfile'])
+        os.remove(file['calfile'])
+    except exceptions.GoogleCloudError:
+        errorHandler(files, file['id'], SETTINGS['ERR_LOG'])
+    else:
+        ingest(file)
+
+def ingest(file):
+    geeCommand = ' '.join((
+        '/usr/local/bin/earthengine upload image',
+        '--time_start', file['properties']['start'],
+        '--time_end', file['properties']['stop'],
+        '--property relativeOrbitNumber_start=' + file['properties']['orbit'],
+        '--property orbitProperties_pass=' + file['properties']['dir'],
+        '--property instrumentMode=' + file['properties']['mode'],
+        '--property platform_number=' + file['properties']['platform'],
+        '--asset_id=' + os.path.join(SETTINGS['GEE_COL'],
+                                     file['id']),
+        os.path.join('gs://',
+                     SETTINGS['GOO_BUC'],
+                     file['file'])
+    ))
+    exitcode = os.system(geeCommand)
+    blob = bucket.blob(file['file'])
+
+def delete():
+    prim_coll = ee.ImageCollection(SETTINGS['GEE_1ST'])
+    sec_names = ee.ImageCollection(SETTINGS['GEE_COL'])
+    sec_names = sec_names.aggregate_array('system:index')
+    itrsctn = prim_coll.filter(ee.Filter.inList('system:index', sec_names))
+    itrsctn = itrsctn.aggregate_array('system:index').getInfo()
+    for name in itrsctn:
+        geeCommand = ' '.join(('/usr/local/bin/earthengine rm',
+                               os.path.join(SETTINGS['GEE_COL'], name)
+        ))
+        exitcode = os.system(geeCommand)
+
+ee.Initialize()
+api = SentinelAPI(SETTINGS['COP_USR'], SETTINGS['COP_PWD'], SETTINGS['COP_ADR'])
+bucket = storage.Client().get_bucket(SETTINGS['GOO_BUC'])
+
+footprint = geojson_to_wkt(read_geojson('bounds.geojson'))
+products = api.query(footprint,
+                     ingestiondate=('NOW-12HOURS', 'NOW'),
+                     producttype='GRD',
+                     polarisationmode='VV VH',
+                     platformname='Sentinel-1',)
+files = {}
+for values in products.values():
+    id = values.get('title')
+    file = id + SETTINGS['IMG_FMT']
+    files[id] = {
+        'uuid': values.get('uuid'),
+        'id': id,
+        'file': file,
+        'dwnfile': os.path.join(SETTINGS['DWN_DIR'], id + SETTINGS['DWN_FMT']),
+        'calfile': os.path.join(SETTINGS['CAL_DIR'], file),
+        'properties': {
+            'start': values.get('beginposition').strftime('%Y-%m-%dT%H:%M:%S'),
+            'stop': values.get('beginposition').strftime('%Y-%m-%dT%H:%M:%S'),
+            'orbit': str(values.get('relativeorbitnumber')),
+            'dir': values.get('orbitdirection'),
+            'mode': values.get('sensoroperationalmode'),
+            'platform': values.get('platformidentifier')[-1:],
+            'year': values.get('beginposition').strftime('%Y'),
+            'month': values.get('beginposition').strftime('%m'),
+        }
+    }
+download(files)
+delete()

@@ -1,0 +1,75 @@
+---
+- name: Install python
+  hosts: all
+  gather_facts: no
+  pre_tasks:
+  - name: Install python
+    raw: apt-get -y install python
+
+- name: Provision calib server
+  hosts: all
+  become_user: avanor
+  vars:
+    snap_url: 
+      http://step.esa.int/downloads/6.0/installers/esa-snap_sentinel_unix_6_0.sh
+  tasks:
+    - name: Upgrade all
+      apt:
+        update_cache: yes
+        upgrade: full
+        autoremove: yes
+
+    - name: Install packages
+      apt:
+        name:
+          - sudo
+          - screen
+          - python3-pip
+          - python-pip
+          - unzip
+        state: latest
+
+    - name: Set root as sudoer
+      lineinfile:
+        path: /etc/sudoers
+        state: present
+        regexp: '^root ALL='
+        line: 'root ALL=(ALL) NOPASSWD: ALL'
+        validate: '/usr/sbin/visudo -cf %s'
+
+    - name: Add user avanor
+      user: 
+        name: avanor
+
+    - name: Install ESA SNAP
+      shell: |
+        snapfile=$(mktemp snap.XXX)
+        curl -s {{ snap_url }} >> $snapfile
+        bash $snapfile -q
+        rm $snapfile
+      args:
+        chdir: /home/avanor
+      become: yes
+
+    - name: Create Earth Engine config directory
+      file:
+        path: "{{ item }}"
+        state: directory
+      become: yes
+      with_items:
+        - /home/avanor/.config/earthengine
+        - /home/avanor/.snap/auxdata/dem/ASTER\ 1sec\ GDEM
+
+    - name: Fetch DEM
+      get_url:
+        url: https://aron.mjuk.is/gis/avanor/aster.zip
+        dest: /home/avanor/aster.zip
+      become: yes
+
+    - name: Unpack DEM
+      unarchive:
+        src: /home/avanor/aster.zip
+        dest: /home/avanor/.snap/auxdata/dem/ASTER 1sec GDEM
+        remote_src: yes
+      become: yes
+...

@@ -1,0 +1,62 @@
+---
+- name: Install ESA SNAP and Avanor calib
+  hosts: all
+  become_user: avanor
+  tasks:
+    - name: Upgrade all
+      apt:
+        update_cache: yes
+        upgrade: full
+        autoremove: yes
+
+    - name: Update ESA SNAP
+      shell: ~/snap/bin/snap --nosplash --nogui --modules --update-all
+      args:
+        chdir: /home/avanor
+      become: yes
+
+    - name: Install Avanor calib
+      copy:
+        src: "{{ item }}"
+        dest: /home/avanor
+      become: yes
+      with_items:
+        - ../../calib 
+        - ../../privatekey-edit.json
+
+    - name: Install Earth Engine credentials
+      copy:
+        src: ../../ee.creds
+        dest: /home/avanor/.config/earthengine/credentials
+      become: yes
+
+    - name: Install Python 2 Earth Engine Python API
+      pip:
+        name:
+          - google-api-python-client
+          - pyCrypto
+          - oauth2client
+          - earthengine-api
+        state: latest
+        executable: pip2
+
+    - name: Install sentinelsat and Python 3 Earth Engine Python API
+      pip:
+        name:
+          - sentinelsat
+          - google-cloud-storage
+          - google-api-python-client
+          - pyCrypto
+          - oauth2client
+          - earthengine-api
+        state: latest
+        executable: pip3
+
+    - name: Set cron schedule
+      cron:
+        name: calib
+        hour: "3,15"
+        minute: "12"
+        user: avanor
+        job: /usr/bin/screen -d -m -L bash -c "/usr/bin/python3 /home/avanor/calib/calib"
+...
