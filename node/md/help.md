@@ -61,6 +61,10 @@ Removes the current image temporarily to make it easier to navigate.
 
 Opens this help window.
 
+## Presentations
+
+* [Metria AB, 2019-02-07](static/presentations/190207/avanor_metria_2019-02-07.pdf)
+
 ## Data sources
 
 * ©&nbsp;[ESA](http://www.esa.int/ESA) [(CC&nbsp;BY&#8209;SA&nbsp;3.0&nbsp;IGO)](https://creativecommons.org/licenses/by-sa/3.0/igo/)
