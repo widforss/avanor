@@ -195,6 +195,10 @@ h1 > img {
   line-height: 1.4;
 }
 
+.about li > p {
+  margin-bottom: 0;
+}
+
 .help {
   background-color: #4285f4;
   color: white !important;

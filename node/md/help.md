@@ -63,13 +63,19 @@ Opens this help window.
 
 ## Data sources
 
-* [Sentinel&#8209;1&nbsp;SAR&nbsp;Level&#8209;1&nbsp;GRD](https://scihub.copernicus.eu/) ©&nbsp;[ESA](http://www.esa.int/ESA) [(CC&nbsp;BY&#8209;SA&nbsp;3.0&nbsp;IGO)](https://creativecommons.org/licenses/by-sa/3.0/igo/)
-* [DTM&nbsp;10&nbsp;Terrengmodell](https://kartkatalog.geonorge.no/metadata/kartverket/dtm-10-terrengmodell-utm33/dddbb667-1303-4ac5-8640-7ec04c0e3918) ©&nbsp;[Kartverket](https://www.kartverket.no/) [(CC&nbsp;BY&nbsp;4.0)](https://creativecommons.org/licenses/by/4.0/)
-* [N50&nbsp;Kartdata](https://kartkatalog.geonorge.no/metadata/kartverket/n50-kartdata/ea192681-d039-42ec-b1bc-f3ce04c189ac) ©&nbsp;[Kartverket](https://www.kartverket.no/) [(CC&nbsp;BY&nbsp;4.0)](https://creativecommons.org/licenses/by/4.0/)
-* [GSD-Höjddata, grid 50+ hdb](https://www.lantmateriet.se/sv/Kartor-och-geografisk-information/Hojddata/GSD-Hojddata-grid-50-/) ©&nbsp;[Lantmäteriet](https://www.lantmateriet.se/) [(CC0 1.0)](https://creativecommons.org/publicdomain/zero/1.0/legalcode.sv)
-* [GSD-Höjddata, grid 50+ nh](https://www.lantmateriet.se/sv/Kartor-och-geografisk-information/Hojddata/GSD-Hojddata-grid-50-/) ©&nbsp;[Lantmäteriet](https://www.lantmateriet.se/) [(CC0 1.0)](https://creativecommons.org/publicdomain/zero/1.0/legalcode.sv)
-* [GSD-Översiktskartan vektor](https://www.lantmateriet.se/sv/Kartor-och-geografisk-information/Kartor/oversiktskartan1/) ©&nbsp;[Lantmäteriet](https://www.lantmateriet.se/) [(CC0 1.0)](https://creativecommons.org/publicdomain/zero/1.0/legalcode.sv)
-* Lavinprognosområden ©&nbsp;[Naturvårdsverket](https://www.lavinprognoser.se/)
+* ©&nbsp;[ESA](http://www.esa.int/ESA) [(CC&nbsp;BY&#8209;SA&nbsp;3.0&nbsp;IGO)](https://creativecommons.org/licenses/by-sa/3.0/igo/)
+  * [Sentinel&#8209;1&nbsp;SAR&nbsp;Level&#8209;1&nbsp;GRD](https://scihub.copernicus.eu/)
+* ©&nbsp;[Kartverket](https://www.kartverket.no/) [(CC&nbsp;BY&nbsp;4.0)](https://creativecommons.org/licenses/by/4.0/)
+  * [DTM&nbsp;10&nbsp;Terrengmodell](https://kartkatalog.geonorge.no/metadata/kartverket/dtm-10-terrengmodell-utm33/dddbb667-1303-4ac5-8640-7ec04c0e3918)
+  * [N50&nbsp;Kartdata](https://kartkatalog.geonorge.no/metadata/kartverket/n50-kartdata/ea192681-d039-42ec-b1bc-f3ce04c189ac)
+  * [Topografisk norgeskart 4 cache](https://kartkatalog.geonorge.no/metadata/kartverket/topografisk-norgeskart-4-cache/8f381180-1a47-4453-bee7-9a3d64843efa)
+* ©&nbsp;[Lantmäteriet](https://www.lantmateriet.se/) [(CC0 1.0)](https://creativecommons.org/publicdomain/zero/1.0/legalcode.sv)
+  * [GSD-Höjddata, grid 50+ hdb](https://www.lantmateriet.se/sv/Kartor-och-geografisk-information/Hojddata/GSD-Hojddata-grid-50-/)
+  * [GSD-Höjddata, grid 50+ nh](https://www.lantmateriet.se/sv/Kartor-och-geografisk-information/Hojddata/GSD-Hojddata-grid-50-/)
+  * [GSD-Översiktskartan vektor](https://www.lantmateriet.se/sv/Kartor-och-geografisk-information/Kartor/oversiktskartan1/)
+  * [Topografisk webbkarta Visning, översiktlig](https://www.lantmateriet.se/sv/Kartor-och-geografisk-information/Geodatatjanster/Visningstjanster/?faq=7e09)
+* ©&nbsp;[Naturvårdsverket](https://www.lavinprognoser.se/)
+  * Lavinprognosområden
 
 Generated images are subject to [CC&nbsp;BY&#8209;SA&nbsp;3.0&nbsp;IGO](https://creativecommons.org/licenses/by-sa/3.0/igo/).
 
