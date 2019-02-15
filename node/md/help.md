@@ -63,7 +63,12 @@ Opens this help window.
 
 ## Presentations
 
-* [Metria AB, 2019-02-07](static/presentations/190207/avanor_metria_2019-02-07.pdf)
+* 2019-02-13
+  * Stockholm
+    * [Princess Victoria & Swedish Polar Research Secretariat](static/presentations/190213/avanor_polar_2019-02-13.pdf)
+* 2019-02-07
+  * Umeå
+    * [Metria AB](static/presentations/190207/avanor_metria_2019-02-07.pdf)
 
 ## Data sources
 
