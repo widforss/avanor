@@ -35,7 +35,7 @@ const SETTINGS = {
       'ORBITS':            175,
       'DOUBLE_PERIOD':     true,
       'SENTINEL_FACTOR':   0.04,
-      'SHADOW_DIRECTORY':  'users/widforss/avanor/shadow',
+      'SHADOW_DIRECTORY':  'users/widforss/avanor/incident_no_se',
       'VIEWPORT_STRIP':    true,
       'OPACITY':           0.2,
       'HILLSHADE':         false,

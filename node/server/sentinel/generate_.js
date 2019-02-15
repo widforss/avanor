@@ -359,8 +359,11 @@ function SentinelGenerate(SETTINGS) {
     
     var orbitNum  = action.first().get('relativeOrbitNumber_start');
     var shadow    = shadows.filter(ee.Filter.eq('orbit', orbitNum))
-                           .first()
-                           .rename('shadow');
+                                            .map(function(img) {
+                                              return img.gt(20);
+                                            }).first();
+    shadow = ee.Algorithms.If(shadow, shadow, ee.Image(1));
+    shadow = ee.Image(shadow).rename('shadow');
     
     var image  = delta.addBands(shadow).addBands(terrain);
     var render = render_(image);

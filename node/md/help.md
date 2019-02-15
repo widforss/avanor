@@ -14,9 +14,9 @@ All Avanor images have a timespan of 6&nbsp;or&nbsp;12 days. The changes are sho
 
 Most avalanches start in terrain that is between 30&#8209;40°. These areas are marked in purple on the map.
 
-### <svg viewBox="-1 -1 2 2"><circle r="1" fill="#cccccc"/></svg> Radio shadow
+### <svg viewBox="-1 -1 2 2"><circle r="1" fill="#cccccc"/></svg> Masking
 
-The satellites do not fly straight over the area they are sensing. Some steep slopes may therefore not be visible to the satellite. Such areas are marked in grey on the map. Neither satellite data or avalanche terrain will be represented in these areas.
+The satellites do not fly straight over the area they are sensing. Some steep slopes may therefore not be visible to the satellite, due to radio shadow or overexposure. Some of those areas are marked in gray. Neither satellite data or avalanche terrain will be represented in those areas.
 
 ### Coordinates
 
