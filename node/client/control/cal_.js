@@ -52,6 +52,7 @@ function ControlCal(notify, selectDate, SETTINGS) {
    */
   function notify_(value) {
     today.setTime(Date.now());
+    var prevDate = new Date(selectDate.getTime());
     
     var day = parseInt(daySelect.getValue(), 10);
     selectDate
@@ -64,17 +65,19 @@ function ControlCal(notify, selectDate, SETTINGS) {
     } else {
       selectDate.setUTCDate(day);
     }
+    selectDate.setUTCHours(0, 0, 0, 0);
     
     if (today < selectDate) {
       selectDate.setTime(today.getTime());
-      selectDate.setUTCHours(0, 0, 0, 0);
       while (SETTINGS.SEASON_MONTHS.indexOf(selectDate.getUTCMonth()) == -1) {
         selectDate.setUTCDate(0);
       }
     }
     
     setSelects_();
-    notify();
+    if (prevDate - selectDate != 0) {
+      notify();
+    }
   }
   
   /**
@@ -177,6 +180,7 @@ function ControlCal(notify, selectDate, SETTINGS) {
     while (SETTINGS.SEASON_MONTHS.indexOf(selectDate.getUTCMonth()) == -1) {
       selectDate.setUTCDate(0);
     }
+    selectDate.setUTCHours(0, 0, 0, 0);
     setSelects_();
     notify();
   }
@@ -186,6 +190,7 @@ function ControlCal(notify, selectDate, SETTINGS) {
    */
   function incDate_() {
     today.setTime(Date.now());
+    var prevDate = new Date(selectDate.getTime());
     
     selectDate.setUTCDate(selectDate.getUTCDate() + 1);
     while (SETTINGS.SEASON_MONTHS.indexOf(selectDate.getUTCMonth()) == -1) {
@@ -197,8 +202,11 @@ function ControlCal(notify, selectDate, SETTINGS) {
         selectDate.setUTCDate(0);
       }
     }
+    selectDate.setUTCHours(0, 0, 0, 0);
     setSelects_();
-    notify();
+    if (prevDate - selectDate != 0) {
+      notify();
+    }
   }
 }
 

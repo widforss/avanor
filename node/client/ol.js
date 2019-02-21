@@ -164,8 +164,10 @@ function Map(div, initPos, SETTINGS, updateMap) {
 
   function toggleEeTo() {
     if (eeHidden) {
-      map.addLayer(eeLayers[SETTINGS.EE_LAYER_Z]);
-      map.addLayer(eeLayers[SETTINGS.SLOPES_LAYER_Z]);
+      var eeLayer = eeLayers[SETTINGS.EE_LAYER_Z];
+      var slopesLayer = eeLayers[SETTINGS.SLOPES_LAYER_Z];
+      if (eeLayer) map.addLayer(eeLayer);
+      if (slopesLayer) map.addLayer(slopesLayer);
       eeHidden = false;
     }
   }
@@ -182,6 +184,7 @@ function Map(div, initPos, SETTINGS, updateMap) {
 
   function removeEe() {
     map.removeLayer(eeLayers[SETTINGS.EE_LAYER_Z]);
+    eeLayers[SETTINGS.EE_LAYER_Z] = null;
   }
   this.removeEe = removeEe;
 
@@ -341,9 +344,10 @@ function Map(div, initPos, SETTINGS, updateMap) {
       exponentialBackoff_(e.tile);
     });
 
-    if (!eeHidden[z]) {
+    eeLayers[z].setZIndex(z);
+
+    if (!eeHidden) {
       map.addLayer(eeLayers[z]);
-      eeLayers[z].setZIndex(z);
     }
   }
 
