@@ -1,6 +1,8 @@
 #!/usr/bin/env python3
 
 import os, sys, requests, zipfile, ee
+from datetime import datetime, timedelta
+from time import sleep
 from sentinelsat.sentinel import SentinelAPI, read_geojson, geojson_to_wkt
 from google.cloud import storage, exceptions
 
@@ -20,6 +22,7 @@ SETTINGS = {
     'DWN_DIR': './downloads',
     'CAL_DIR': './calibrated',
     'GPH_FIL': 'graph.xml',
+    'GEO_FIL': 'bounds.geojson',
     'GPH_BIN': '~/snap/bin/gpt',
     'LOG_FIL': 'calib.log',
     'GOO_BUC': 'earthengine-avanor',
@@ -39,6 +42,11 @@ SETTINGS = {
     'COP_ADR': 'https://scihub.copernicus.eu/dhus',
 }
 
+ee.Initialize()
+api = SentinelAPI(SETTINGS['COP_USR'], SETTINGS['COP_PWD'], SETTINGS['COP_ADR'])
+bucket = storage.Client().get_bucket(SETTINGS['GOO_BUC'])
+footprint = geojson_to_wkt(read_geojson(SETTINGS['GEO_FIL']))
+
 def errorHandler(filesDict, thisId, errLog):
     del filesDict[thisId]
     f = open(errLog, 'a+')
@@ -47,9 +55,11 @@ def errorHandler(filesDict, thisId, errLog):
 
 def download(files):
     print('Downloading files:')
-    for id in files.keys():
-        print(id)
-    dwn_results = api.download_all(products, SETTINGS['DWN_DIR'])
+    todownload = {}
+    for value in files.values():
+        print(value['id'])
+        todownload[value['uuid']] = value['properties']['product']
+    dwn_results = api.download_all(todownload, SETTINGS['DWN_DIR'])
     for id in map(lambda x: x.get('title'), dwn_results[0].values()):
         orbit(files[id])
     for uuid in dwn_results[1]:
@@ -131,49 +141,78 @@ def ingest(file):
     ))
     exitcode = os.system(geeCommand)
     blob = bucket.blob(file['file'])
+    byme.append(file['id'])
 
 def delete():
-    prim_coll = ee.ImageCollection(SETTINGS['GEE_1ST'])
-    sec_names = ee.ImageCollection(SETTINGS['GEE_COL'])
-    sec_names = sec_names.aggregate_array('system:index')
-    itrsctn = prim_coll.filter(ee.Filter.inList('system:index', sec_names))
-    itrsctn = itrsctn.aggregate_array('system:index').getInfo()
-    for name in itrsctn:
+    intrsctn = public.filter(ee.Filter.inList('item', private)).getInfo()
+    for name in intrsctn:
         geeCommand = ' '.join(('/usr/local/bin/earthengine rm',
                                os.path.join(SETTINGS['GEE_COL'], name)
         ))
         exitcode = os.system(geeCommand)
 
-ee.Initialize()
-api = SentinelAPI(SETTINGS['COP_USR'], SETTINGS['COP_PWD'], SETTINGS['COP_ADR'])
-bucket = storage.Client().get_bucket(SETTINGS['GOO_BUC'])
 
-footprint = geojson_to_wkt(read_geojson('bounds.geojson'))
-products = api.query(footprint,
-                     ingestiondate=('NOW-12HOURS', 'NOW'),
-                     producttype='GRD',
-                     polarisationmode='VV VH',
-                     platformname='Sentinel-1',)
-files = {}
-for values in products.values():
-    id = values.get('title')
-    file = id + SETTINGS['IMG_FMT']
-    files[id] = {
-        'uuid': values.get('uuid'),
-        'id': id,
-        'file': file,
-        'dwnfile': os.path.join(SETTINGS['DWN_DIR'], id + SETTINGS['DWN_FMT']),
-        'calfile': os.path.join(SETTINGS['CAL_DIR'], file),
-        'properties': {
-            'start': values.get('beginposition').strftime('%Y-%m-%dT%H:%M:%S'),
-            'stop': values.get('beginposition').strftime('%Y-%m-%dT%H:%M:%S'),
-            'orbit': str(values.get('relativeorbitnumber')),
-            'dir': values.get('orbitdirection'),
-            'mode': values.get('sensoroperationalmode'),
-            'platform': values.get('platformidentifier')[-1:],
-            'year': values.get('beginposition').strftime('%Y'),
-            'month': values.get('beginposition').strftime('%m'),
-        }
-    }
-download(files)
-delete()
+private = ee.ImageCollection(SETTINGS['GEE_COL'])
+private = ee.List(private.aggregate_array('system:index'))
+byme = []
+
+while True:
+    try:
+        products = api.query(footprint,
+                             date=('NOW-72HOURS', 'NOW'),
+                             producttype='GRD',
+                             polarisationmode='VV VH',
+                             platformname='Sentinel-1',)
+    except:
+        print('Error querying Scihub')
+        sleep(300)
+        continue
+
+    files = {}
+    now = datetime.now()
+    then = now - timedelta(days=7)
+    public = ee.ImageCollection(SETTINGS['GEE_1ST']).filterDate(then, now)
+    public = ee.List(public.aggregate_array('system:index'))
+    try:
+        done = public.cat(private).distinct().getInfo()
+    except:
+        print('Error quering Earth Engine')
+        sleep(300)
+        continue
+
+    for values in products.values():
+        id = values.get('title')
+        if not (id in byme or id in done):
+            file = id + SETTINGS['IMG_FMT']
+            start = values.get('beginposition').strftime('%Y-%m-%dT%H:%M:%S')
+            stop = values.get('beginposition').strftime('%Y-%m-%dT%H:%M:%S')
+            files[id] = {
+                'uuid': values.get('uuid'),
+                'id': id,
+                'file': file,
+                'dwnfile': os.path.join(
+                    SETTINGS['DWN_DIR'],
+                    id + SETTINGS['DWN_FMT']
+                ),
+                'calfile': os.path.join(SETTINGS['CAL_DIR'], file),
+                'properties': {
+                    'start': start,
+                    'stop': stop,
+                    'orbit': str(values.get('relativeorbitnumber')),
+                    'dir': values.get('orbitdirection'),
+                    'mode': values.get('sensoroperationalmode'),
+                    'platform': values.get('platformidentifier')[-1:],
+                    'year': values.get('beginposition').strftime('%Y'),
+                    'month': values.get('beginposition').strftime('%m'),
+                    'product': values,
+                }
+            }
+    if len(files):
+        try:
+            download(files)
+        except:
+            print('Error during download.')
+            sleep(300)
+            continue
+    delete()
+    sleep(900)

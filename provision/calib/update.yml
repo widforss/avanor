@@ -23,6 +23,7 @@
       with_items:
         - ../../calib 
         - ../../privatekey-edit.json
+        - ../../scihub.creds
 
     - name: Install Earth Engine credentials
       copy:
@@ -59,4 +60,5 @@
         minute: "12"
         user: avanor
         job: /usr/bin/screen -d -m -L bash -c "/usr/bin/python3 /home/avanor/calib/calib"
+        state: absent
 ...
