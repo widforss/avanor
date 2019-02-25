@@ -83,7 +83,7 @@ function Server() {
       res.sendStatus(404);
     });
 
-    app.listen(8080, '0.0.0.0');
+    app.listen(8081, '0.0.0.0');
     console.log(SETTINGS.STARTED);
 
     function respond_(res) {
