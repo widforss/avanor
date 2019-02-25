@@ -3,9 +3,9 @@ var SETTINGS = {
   THROTTLE_DELAY: 100,
   SEARCHING_STR:  'Looking for satellite data …',
   PERSISTENCY: {
-    INITPOS: {x: 14.6, y: 66.5, z: 12},
+    INITPOS: {x: 10.28, y: 47.41, z: 12},
     DEFAULT_DATE: '2017-01-30',
-    DEFAULT_MAP: 'SE & NO',
+    DEFAULT_MAP: 'AT',
     COOKIE: {
       COOKIELIFE: 30 * 24 * 3600 * 1000,
     },
@@ -40,7 +40,7 @@ var SETTINGS = {
     },
     NAV: {
       ZOOM:        [0, 24],
-      MAPS:        ['SE & NO'],
+      MAPS:        ['AT'],
       HIDE_MAP:    'Hide',
       SHOW_MAP:    'Show',
     },

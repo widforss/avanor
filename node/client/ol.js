@@ -1,4 +1,5 @@
 import OlMap from 'ol/Map';
+import OSM from 'ol/source/OSM';
 import View from 'ol/View';
 import TileLayer from 'ol/layer/Tile';
 import VectorLayer from 'ol/layer/Vector';
@@ -56,12 +57,14 @@ function Map(div, initPos, SETTINGS, updateMap) {
     target : div,
     logo : false,
     view : new View({
-      extent: [ -100000,  6100000, 1130000, 8000000 ],
+      extent:
+          transform([9.72839, 47.07947], 'EPSG:4326', 'EPSG:3857').concat(
+              transform([10.71441, 47.56911], 'EPSG:4326', 'EPSG:3857')),
       resolutions: googResolutions,
-      minZoom: 6,
-      center : transform([initPos.x, initPos.y], 'EPSG:4326', 'EPSG:25833'),
+      minZoom: 9,
+      center : transform([initPos.x, initPos.y], 'EPSG:4326', 'EPSG:3857'),
       zoom : initPos.z,
-      projection: 'EPSG:25833',
+      projection: 'EPSG:3857',
     }),
     interactions: defaultInteractions({
       altShiftDragRotate: false,
@@ -70,65 +73,7 @@ function Map(div, initPos, SETTINGS, updateMap) {
     overlays: [popup.getOverlay()],
   });
 
-  addLayer_([ -1200000, 4700000, 2600000, 8500000 ],
-            [
-              4096,
-              2048,
-              1024,
-              512,
-              256,
-              128,
-              64,
-              32,
-              16,
-              8,
-              // Changed due to licensing issues.
-              //4,
-              //2,
-              //1,
-              //0.5,
-            ],
-            'EPSG:25833',
-            '/static/geojson/se-simplified.geojson',
-
-            // Changed due to licensing issues. The current is CC0.
-            //'https://kso.etjanster.lantmateriet.se/karta/topowebb/v1.1/wmts?'+
-            'https://api.lantmateriet.se/open/topowebb-ccby/v1/wmts/' +
-                'token/f6004f59-323f-36ac-b83c-be300ee533d7/?' +
-                'SERVICE=WMTS&REQUEST=GetTile&VERSION=1.0.0&LAYER=topowebb&' +
-                'STYLE=default&TILEMATRIXSET=3006&' +
-                'TILEMATRIX={z}&TILEROW={y}&TILECOL={x}&FORMAT=image/png',
-            1);
-  
-  addLayer_([ -2500000, 6420992, 1130000, 9045984 ],
-            [
-              21664,
-              10832,
-              5416,
-              2708,
-              1354,
-              677,
-              338.5,
-              169.25,
-              84.625,
-              42.3125,
-              21.15625,
-              10.578125,
-              5.2890625,
-              2.64453125,
-              1.322265625,
-              0.6611328125,
-              0.33056640625,
-              0.165283203125,
-            ],
-            'EPSG:25833',
-            '/static/geojson/no-simplified.geojson',
-            'https://opencache.statkart.no/gatekeeper/gk/gk.open_wmts/?' +
-                 'layer=topo4&style=default&tilematrixset=EPSG:25833&' +
-                 'Service=WMTS&Request=GetTile&Version=1.0.0&' +
-                 'Format=image/png&' +
-                 'TileMatrix=EPSG:25833:{z}&TileCol={x}&TileRow={y}',
-            2);
+  addOSM_('https://a.tile.opentopomap.org/{z}/{x}/{y}.png', 1);
 
   function onMove(func) {
     map.on('moveend', () => {
@@ -222,7 +167,7 @@ function Map(div, initPos, SETTINGS, updateMap) {
   this.setBaseMap = setBaseMap;
 
   function getBaseMap() {
-    return 'se/no';
+    return 'at';
   }
   this.getBaseMap = getBaseMap;
 
@@ -232,18 +177,21 @@ function Map(div, initPos, SETTINGS, updateMap) {
   this.setZoom = setZoom;
 
   function setPos(x, y, z) {
-    map.getView().setCenter(transform([x, y], 'EPSG:4326', 'EPSG:25833'));
+    var proj = map.getView().getProjection();
+    map.getView().setCenter(transform([x, y], 'EPSG:4326', proj));
     setZoom(z);
   }
   this.setPos = setPos;
 
   function getX() {
-    return transform(map.getView().getCenter(), 'EPSG:25833', 'EPSG:4326')[0];
+    var proj = map.getView().getProjection();
+    return transform(map.getView().getCenter(), proj, 'EPSG:4326')[0];
   }
   this.getX = getX;
 
   function getY() {
-    return transform(map.getView().getCenter(), 'EPSG:25833', 'EPSG:4326')[1];
+    var proj = map.getView().getProjection();
+    return transform(map.getView().getCenter(), proj, 'EPSG:4326')[1];
   }
   this.getY = getY;
 
@@ -282,50 +230,15 @@ function Map(div, initPos, SETTINGS, updateMap) {
   }
   this.addGeoJSON = addGeoJSON;
 
-  function addLayer_(extent, resolutions, projection, boundsUrl, tileUrl, z) {
-    const tileGrid = new WMTSTileGrid({
-      tileSize : 256,
-      extent : extent,
-      resolutions : resolutions,
-      projection: projection,
-    });
-
+  function addOSM_(tileUrl, z) {
     const xyz = new TileLayer({
-      source: new XYZ({
+      source: new OSM({
         url: tileUrl,
-        tileGrid: tileGrid,
-        crossOrigin: 'Anonymous',
-        projection: projection,
       }),
     });
 
-    if (boundsUrl) {
-      const urlFunction = xyz.getSource().getTileUrlFunction();
-      xyz.getSource().setTileUrlFunction(function(tileCoord,
-                                                  pixelRatio,
-                                                  projection) {
-        for (var feature of bounds.getSource().getFeatures()) {
-          var featureIntersects =
-              feature.getGeometry()
-                     .intersectsExtent(this.getTileGrid()
-                                           .getTileCoordExtent(tileCoord));
-          if (featureIntersects) {
-            return urlFunction(tileCoord, pixelRatio, projection);
-          }
-        };
-      });
-
-      const bounds = addGeoJSON_(boundsUrl, 0);
-      bounds.getSource().on('change', (e) => {
-        if (bounds.getSource().getState() == 'ready') {
-          map.addLayer(xyz);
-          xyz.setZIndex(z);
-        }
-      });
-    } else {
-      map.addLayer(xyz);
-      xyz.setZIndex(z);
-    }
+    map.addLayer(xyz);
+    xyz.setZIndex(z);
   }
 
   function setEeLayer_(mapid, token, z) {
