@@ -92,4 +92,6 @@ Generated images are subject to [CC&nbsp;BY&#8209;SA&nbsp;3.0&nbsp;IGO](https://
 
 [info@avanor.se](mailto:info@avanor.se)
 
-Avanor © 2018 [Aron&nbsp;Widforss](https://twitter.com/aronwidforss)
+Avanor © 2018 Aron&nbsp;Widforss
+
+**Like what you see?** I am [available for hire](mailto:aron@antarkt.is).
