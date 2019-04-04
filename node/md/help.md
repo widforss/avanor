@@ -1,4 +1,4 @@
-**NB! Currently, Avanor only have coverage for Scandinavia. If you need coverage over another area, please request it via email ([info@avanor.se](mailto:info@avanor.se)). This is a pre-release version of Avanor, and it may or may not work as expected.**
+**NB! This is a pre-release version of Avanor, and it may or may not work as expected.**
 
 Avanor is an avalanche observation tool. It uses [Sentinel&#8209;1](https://sentinel.esa.int/web/sentinel/missions/sentinel-1) [SAR](https://en.wikipedia.org/wiki/Synthetic-aperture_radar) [GRD](https://sentinel.esa.int/web/sentinel/technical-guides/sentinel-1-sar/products-algorithms/level-1-algorithms/ground-range-detected) data to find changes in reflectance on the ground. Due to the relatively large temporal resolution of the data (6&nbsp;or&nbsp;12&nbsp;days), some avalanches may not be seen due to ground blizzards and other meteorological phenomena that may cover the avalanche with snow. Due to the large spatial resolution (10&nbsp;m), small avalanches may be hard to spot as well. **It is unknown what percentage of avalanches may be observed using Avanor. No study have been performed to validate that Avanor works correctly.**
 
@@ -16,7 +16,7 @@ Most avalanches start in terrain that is between 30&#8209;40°. These areas are 
 
 ### <svg viewBox="-1 -1 2 2"><circle r="1" fill="#cccccc"/></svg> Masking
 
-The satellites do not fly straight over the area they are sensing. Some steep slopes may therefore not be visible to the satellite, due to radio shadow or overexposure. Some of those areas are marked in gray. Neither satellite data or avalanche terrain will be represented in those areas.
+The satellites do not fly straight over the area they are sensing. Some steep slopes may therefore not be visible to the satellite, due to radio shadow or foreshortening. Some of those areas are marked in gray. Neither satellite data or avalanche terrain will be represented in those areas.
 
 ### Coordinates
 

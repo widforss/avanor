@@ -20,9 +20,18 @@ const Errors = require('../errors.js');
  *    - `VIEWPORT_STRIP`   _{boolean}_  Bind returned orbits to viewport.
  */
 function SentinelGenerate(SETTINGS) {
-  var terrain = ee.Image(SETTINGS.TERRAIN).rename('terrain');
+  var extent = SETTINGS.EXTENT[0];
+  SETTINGS.EXTENT.slice(1).forEach(function(geom) {
+    extent = ee.Geometry(extent).union(ee.Geometry(geom));
+  });
+
+  var terrain = SETTINGS.TERRAIN[0];
+  SETTINGS.TERRAIN.slice(1).forEach(function(dem) {
+    terrain = ee.Image(terrain).blend(dem);
+  });
+  terrain = ee.Image(terrain).clip(extent).rename('terrain');
   var shadows = ee.ImageCollection(SETTINGS.SHADOW_DIRECTORY);
-  
+
   /**
    * Return the state in the form of a list of satellite
    *     images available for the given date and bounds.
@@ -38,15 +47,13 @@ function SentinelGenerate(SETTINGS) {
    *        - band `terrain`               Terrain model.
    *        - band `slopes`                Potential avalanche terrain.
    */
-  function queryDate(dateString, bounds) {
+  function queryDate_(date, bounds) {
     bounds         = bounds ? ee.Geometry(bounds) : null;
-    var dateLocal  = parseDate_(dateString, false);
-    var date       = ee.Date(dateLocal);
     var copernicus = collection_(bounds);
-    
+
     // Get a list of unique relative orbits in `copernicus` collection.
     var orbitNums = ee.List(getOrbits_(copernicus));
-    
+
     // Get a list with information about images from the same relative orbit.
     return orbitNums.map(function(orbitNum) {
       var orbitCollection      =
@@ -62,6 +69,58 @@ function SentinelGenerate(SETTINGS) {
       return orbitDict;
     }).removeAll([null]);
   }
+  function queryDate(dateString, bounds, callback, errback) {
+    var date;
+    date  = parseDate(dateString, errback);
+    if (!date) return;
+    date = ee.Date(date);
+
+    var imgList = ee.List(queryDate_(date, bounds));
+
+    var names   = imgList.map(function(imgDict) {
+      return ee.Dictionary(imgDict).get('name');
+    });
+    var renders = imgList.map(function(imgDict) {
+      return ee.Dictionary(imgDict).get('render');
+    });
+
+    ee.List(names).evaluate(function(namesLocal, errMsg) {
+      function sort_(propA, propB) {
+        if (propA.direction != propB.direction) {
+          return propA.direction == 'ASCENDING' ? 1 : -1;
+        }
+        if (propA.orbit != propB.orbit) {
+          return propA.orbit > propB.orbit ? 1 : -1;
+        }
+        return 0;
+      }
+
+      if (errMsg) {
+        Errors.handle(new Errors.EeEvalError(errMsg), errback);
+        return;
+      }
+
+      var properties = {};
+      namesLocal.forEach((name) => {
+        properties[name] = parseName(name, errback);
+      });
+
+      var orbits = namesLocal.map((name) => {
+          return properties[name].orbit;
+      });
+
+      var contentList = namesLocal.map((name, j) => {
+        return {'name': name, 'orbit': orbits[j]};
+      });
+      contentList.sort((contentA, contentB) => {
+        var propA = properties[contentA.name];
+        var propB = properties[contentB.name];
+        return sort_(propA, propB);
+      });
+
+      callback(contentList);
+    });
+  }
   this.queryDate = queryDate;
   
   /**
@@ -75,7 +134,7 @@ function SentinelGenerate(SETTINGS) {
    *      - band `terrain`               Terrain model.
    *      - band `slopes`                Potential avalanche terrain.
    */
-  function queryName(properties) {
+  function queryName_(properties) {
     var orbitNum   = ee.Number(properties.orbit);
     var direction  = ee.String(properties.direction);
     var refDate    = ee.Date(properties.refDate);
@@ -96,34 +155,53 @@ function SentinelGenerate(SETTINGS) {
         ee.ImageCollection(collectionPair.get('action')).size().gt(0);
     var refSize =
         ee.ImageCollection(collectionPair.get('ref')).size().gt(0);
-
+  
     return ee.Algorithms.If(actionSize.add(refSize).eq(2),
                             delta_(collectionPair),
                             null);
   }
+  function queryName(name, callback, errback) {
+    var properties = parseName(name, errback);
+    getMap_(ee.Dictionary(queryName_(properties)).get('render'), callback, errback);
+  }
   this.queryName = queryName;
 
-  function getCoverage(properties) {
-      return ee.Image(ee.Dictionary(queryName(properties)).get('image'))
-                   .select('delta')
-                   .neq(0)
-                   .multiply(terrain.neq(0).mask(terrain.neq(0)))
-                   .reduceToVectors({
-                     scale: SETTINGS.VECTOR_SCALE,
-                     geometry: terrain.geometry(),
-                   })
-                   .geometry()
-                   .simplify(2 * SETTINGS.VECTOR_SCALE);
+  function getCoverage_(properties) {
+    return ee.Image(ee.Dictionary(queryName_(properties)).get('image'))
+                 .select('delta')
+                 .neq(0)
+                 .multiply(terrain.neq(0).mask(terrain.neq(0)))
+                 .reduceToVectors({
+                   scale: SETTINGS.VECTOR_SCALE,
+                   geometry: extent.convexHull(),
+                 })
+                 .geometry()
+                 .simplify(2 * SETTINGS.VECTOR_SCALE);
+  }
+  function getCoverage(name, callback, errback) {
+    var properties = parseName(name, errback);
+    var coverage = getCoverage_(properties);
+    ee.Geometry(coverage).evaluate((geom, errMsg) => {
+      if (errMsg) {
+        Errors.handle(new Errors.EeEvalError(errMsg), errback);
+        return;
+      }
+      callback(geom);
+    })
   }
   this.getCoverage = getCoverage;
 
-  function getSlopes() {
+  function getSlopes_() {
     var slopes = ee.Terrain.slope(terrain);
     var mask = slopes.lt(SETTINGS.ANGLES[1])
                  .multiply(slopes.gte(SETTINGS.ANGLES[0]))
-                 .resample('bicubic')
                  .rename('slopes');
     return mask.mask(mask);
+  }
+  function getSlopes(callback) {
+    getSlopes_().getMap({palette: '#7570b3'}, (slopes) => {
+      callback({'mapid': slopes.mapid, 'token': slopes.token});
+    });
   }
   this.getSlopes = getSlopes;
   
@@ -146,11 +224,11 @@ function SentinelGenerate(SETTINGS) {
    *    - `refDate`    _{Date}_   Date of reference image.
    *    - `actionDate` _{Date}_   Date of action image.
    */
-  function parseName(origName) {
+  function parseName_(origName) {
     function abort_() {
       throw new Errors.ParseNameError();
     }
-    
+
     var name = origName;
     var satellite = name.slice(0, 1);
     if (!/^[A-D]$/.test(satellite)) abort_();
@@ -199,10 +277,20 @@ function SentinelGenerate(SETTINGS) {
       'actionDate': actionDate,
     };
   }
+  function parseName(origName, errback) {
+    var properties;
+    try {
+      properties = parseName_(origName);
+    } catch (e) {
+      Errors.handle(e, errback);
+      return;
+    }
+    return properties;
+  }
   this.parseName = parseName;
-  
+
   function parseDate_(dateString, noCheckStart) {
-    var dateRegex = /20[1-9]{2}-[0-9]{2}-[0-9]{2}/
+    var dateRegex = /20[0-9]{2}-[0-9]{2}-[0-9]{2}/
     if (!dateRegex.test(dateString)) {
       throw new Errors.ParseDateError('Invalid dateString: ' + dateString);
     }
@@ -222,8 +310,14 @@ function SentinelGenerate(SETTINGS) {
 
     return date;
   }
-  function parseDate(dateString) {
-    parseDate_(dateString, false);
+  function parseDate(dateString, errback) {
+    try {
+      var validDate = parseDate_(dateString, false);
+    } catch (e) {
+      if (errback) errback("Internal Server Error", 500);
+      return;
+    }
+    return validDate;
   }
   this.parseDate = parseDate;
 
@@ -370,7 +464,7 @@ function SentinelGenerate(SETTINGS) {
 
     var imgSize = ee.Image(render).select(0).reduceRegion({
       reducer: ee.Reducer.sum(),
-      geometry: terrain.geometry(),
+      geometry: extent.convexHull(),
       scale: SETTINGS.VECTOR_SCALE,
     }).toArray().get([0]);
 
@@ -392,10 +486,11 @@ function SentinelGenerate(SETTINGS) {
    * @return {ee.Image}  Rendering of orbit image.
    */
   function render_(image) {
-    image       = ee.Image(image);
-    var delta   = image.select('delta');
-    var shadow  = image.select('shadow');
-    var terrain = image.select('terrain');
+    image         = ee.Image(image);
+    var delta     = image.select('delta');
+    var shadow    = image.select('shadow');
+    var terrain   = image.select('terrain');
+    var slopemask = ee.Image(SETTINGS.SLOPE_MASK);
 
     delta = ee.Image(0).blend(delta.log10()
                                    .unitScale(-2.5, -0.3)
@@ -410,13 +505,28 @@ function SentinelGenerate(SETTINGS) {
       bg = bg.mask(terrain.neq(0));
     }
     
-    // Get Colorbrewers recommended color #d95f02
     var red   = bg.subtract(shadow);
     var green = bg.subtract(delta).subtract(shadow);
     var blue  = bg.subtract(delta).subtract(shadow);
 
-    var mask = red.lt(0.81).or(blue.lt(0.79));
+    var mask = red.lt(0.81).or(blue.lt(0.79)).and(slopemask);
     return ee.Image.rgb(red, green, blue).mask(mask);
+  }
+
+  function getMap_(render, callback, errback) {
+    ee.Image(render).getMap({min: 0, max: 1}, (map, errMsg) => {
+
+      // I want to apologise to God, the world and my teachers for this.
+      if (/^Dictionary.get: Dictionary/.test(errMsg)) {
+        Errors.handle(new Errors.NoImageError(errMsg), errback);
+        return;
+      } else if (errMsg) {
+        Errors.handle(new Errors.EeEvalError(errMsg), errback);
+        return;
+      }
+
+      if (callback) callback({'mapid': map.mapid, 'token': map.token});
+    });
   }
 }
 

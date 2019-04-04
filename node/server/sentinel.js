@@ -26,24 +26,13 @@ function Sentinel(SETTINGS) {
   });
 
   function getSlopes(callback) {
-    slopeCache.search('slopes', false, (map) => {
-      callback(map);
-    }, (cacheback) => {
-      sentinelGenerate.getSlopes().getMap({palette: '#7570b3'}, (slopes) => {
-        cacheback({'mapid': slopes.mapid, 'token': slopes.token});
-      });
-    })
+    slopeCache.search('slopes', false, callback, sentinelGenerate.getSlopes);
   }
   this.getSlopes = getSlopes;
 
   function getRender(name, force, callback) {
-      var properties;
-      try {
-        properties = sentinelGenerate.parseName(name);
-      } catch (e) {
-        Errors.handle(e, callback);
-        return;
-      }
+      var properties = sentinelGenerate.parseName(name, callback);
+      if (!properties) return;
       if (typeof callback !== 'function' && callback !== null) {
         Errors.handle(new Errors.ParameterError('callback is no function.'));
         return;
@@ -52,9 +41,7 @@ function Sentinel(SETTINGS) {
       renderCache.search(name, force, (map) => {
         if (callback) callback(map);
       }, (callback) => {
-        var render = ee.Dictionary(sentinelGenerate.queryName(properties))
-                       .get('render');
-        getMap_(render, callback);
+        sentinelGenerate.queryName(name, callback, callback)
       });
   }
   this.getRender = getRender;
@@ -113,6 +100,7 @@ function Sentinel(SETTINGS) {
       if (propagate >= 0 && propagate < SETTINGS.PROP_DAYS) {
         var nextDay = new Date(dateString)
         nextDay.setUTCDate(nextDay.getUTCDate() + 1)
+        if (nextDay > Date.now()) return;
         nextDay = utils.formatDate(nextDay);
         getNames_(nextDay, null, propagate + 1, false, stack, null);
       }
@@ -159,95 +147,37 @@ function Sentinel(SETTINGS) {
             Errors.handle(new Errors.StackError('Network seems flaky?'));
             return;
           };
-          cacheOrbits_([sentinelGenerate.parseName(name)]);
+          var properties;
+          properties = sentinelGenerate.parseName(name, callback);
+          if (!properties) return;
+          cacheOrbits_([properties]);
           getNames_(dateString, bounds, propagate, true, true, callback);
         });
       });
     }
 
     function noNameCache_(bounds, callback, cacheback) {
-      var imgList;
-      try {
-        imgList = ee.List(sentinelGenerate.queryDate(dateString, bounds));
-      } catch (e) {
-        if (e instanceof Errors.OutOfSeasonError) {
-          if (callback) Errors.handle(e, callback);
-        } else if (e instanceof Errors.FutureDateError) {
-          if (callback) Errors.handle(e, callback);
-        } else if (e instanceof Errors.BeforeStartError) {
-          if (callback) Errors.handle(e, callback);
-        } else {
-          Errors.handle(e, callback);
-        }
-        return;
-      }
-
-      var names   = imgList.map(function(imgDict) {
-        return ee.Dictionary(imgDict).get('name');
-      });
-      var renders = imgList.map(function(imgDict) {
-        return ee.Dictionary(imgDict).get('render');
-      });
-
-      ee.List(names).evaluate(function(namesLocal, errMsg) {
-        if (errMsg) {
-          if (callback) {
-            Errors.handle(new Errors.EeEvalError(), callback);
-          }
-          Errors.handle(new Errors.EeEvalError(errMsg));
-          return;
-        }
-
-        var properties = {};
-        namesLocal.forEach((name) => {
-          properties[name] = sentinelGenerate.parseName(name);
-        });
-
-        var orbits = namesLocal.map((name) => {
-            return properties[name].orbit;
-        });
-
-        var cacheList = namesLocal.map((name, j) => {
-          return {'name': name, 'orbit': orbits[j]};
-        });
-        cacheList.sort((cacheA, cacheB) => {
-          var propA = properties[cacheA.name];
-          var propB = properties[cacheB.name];
-          return sort_(propA, propB);
-        });
-
+      sentinelGenerate.queryDate(dateString, bounds, (imgList) => {
         // If we get into this function someone is going to want
         // coverage and renderings pretty soon. We need to get these
         // into a waiting state before calling callback.
-        cacheOrbits_(Object.values(properties));
-        cacheRenders_(namesLocal, renders);
+        var names = imgList.map((entry) => entry.name);
+        cacheOrbits_(names);
+        cacheRenders_(names);
 
-        cacheback(cacheList);
-      });
+        cacheback(imgList);
+      }, callback);
     }
 
-    function cacheOrbits_(properties) {
-      var names = properties.map((property) => property.name);
+    function cacheOrbits_(names) {
       orbitCache.cache(names, force, (i, back) => {
-        var coverage = sentinelGenerate.getCoverage(properties[i]);
-        ee.Geometry(coverage).evaluate((geom, errMsg) => {
-          if (errMsg) {
-            if (callback) {
-              Errors.handle(new Errors.EeEvalError(), callback);
-            }
-            callback = null;
-            Errors.handle(new Errors.EeEvalError(errMsg));
-            return;
-          }
-          back(geom);
-        })
+        sentinelGenerate.getCoverage(names[i], back, callback);
       });
     }
 
-    function cacheRenders_(names, renders) {
-      renderCache.cache(names, force, (i, callback) => {
-        var render = renders.get(i);
-        getMap_(render, callback);
+    function cacheRenders_(names) {
+      renderCache.cache(names, force, (i, back) => {
+        sentinelGenerate.queryName(names[i], back, callback);
       });
     }
   }
@@ -255,33 +185,6 @@ function Sentinel(SETTINGS) {
     return getNames_(dateString, bounds, 0, false, false, callback);
   }
   this.getNames = getNames;
-
-  function getMap_(render, callback) {
-    ee.Image(render).getMap(SETTINGS.VIS_PARAMS, (map, errMsg) => {
-
-      // I want to apologise to God, the world and my teachers for this.
-      if (/^Dictionary.get: Dictionary/.test(errMsg)) {
-        Errors.handle(new Errors.NoImageError(errMsg), callback);
-        return;
-      } else if (errMsg) {
-        Errors.handle(new Errors.EeEvalError(errMsg));
-        Errors.handle(new Errors.EeEvalError(), callback);
-        return;
-      }
-
-      if (callback) callback({'mapid': map.mapid, 'token': map.token});
-    });
-  }
-
-  function sort_(propA, propB) {
-    if (propA.direction != propB.direction) {
-      return propA.direction == 'ASCENDING' ? 1 : -1;
-    }
-    if (propA.orbit != propB.orbit) {
-      return propA.orbit > propB.orbit ? 1 : -1;
-    }
-    return 0;
-  }
 }
 
 module.exports = Sentinel;

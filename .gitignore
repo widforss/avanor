@@ -1,8 +1,9 @@
 privatekey*.json
 track.id
 ee.creds
+scihub.creds
 node/client.js
 node/node_modules
 node/npm-debug.log
 npm-debug.log
-.node-xmlhttprequest-sync-*
+node/.node-xmlhttprequest-sync-*
