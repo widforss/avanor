@@ -180,6 +180,7 @@ function SentinelGenerate(SETTINGS) {
   }
   function getCoverage(name, callback, errback) {
     var properties = parseName(name, errback);
+    if (!properties) return;
     var coverage = getCoverage_(properties);
     ee.Geometry(coverage).evaluate((geom, errMsg) => {
       if (errMsg) {
