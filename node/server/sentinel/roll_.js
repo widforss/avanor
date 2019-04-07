@@ -44,9 +44,6 @@ function SentinelRoll(SETTINGS, testDate, func) {
   function wrapAround_() {
     if (cachedDays) {
       var wrapWait = SETTINGS.SLOW;
-      if (rollWait == SETTINGS.FAST) {
-        wrapWait = cachedDays * (SETTINGS.SLOW - SETTINGS.FAST);
-      }
       rollWait = SETTINGS.SLOW;
       resetCacheDate_();
       setTimeout(rollInstance_, wrapWait);
