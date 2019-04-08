@@ -489,7 +489,8 @@ function SentinelGenerate(SETTINGS) {
   function render_(image) {
     image         = ee.Image(image);
     var delta     = image.select('delta');
-    var shadow    = image.select('shadow');
+    var shadow    = image.select('shadow')
+                         .mask(delta.mask());
     var terrain   = image.select('terrain');
     var slopemask = ee.Image(SETTINGS.SLOPE_MASK);
 
@@ -497,7 +498,7 @@ function SentinelGenerate(SETTINGS) {
                                    .unitScale(-2.5, -0.3)
                                    .clamp(0, 1)
                                    .add(0.2)
-                                   .multiply(shadow)
+                                   .multiply(shadow.unitScale(-1, 1))
                                    .pow(2));
     shadow = shadow.resample('bicubic').neq(1).multiply(SETTINGS.OPACITY);
     
