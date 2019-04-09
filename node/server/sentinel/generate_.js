@@ -196,7 +196,7 @@ function SentinelGenerate(SETTINGS) {
   this.getCoverage = getCoverage;
 
   function getSlopes_() {
-    var slopes = ee.Terrain.slope(terrain);
+    var slopes = ee.Terrain.slope(terrain).resample('bicubic');
     var mask = slopes.lt(SETTINGS.ANGLES[1])
                  .multiply(slopes.gte(SETTINGS.ANGLES[0]))
                  .rename('slopes');
@@ -501,7 +501,7 @@ function SentinelGenerate(SETTINGS) {
                                    .unitScale(-2.5, -0.3)
                                    .clamp(0, 1)
                                    .add(0.2)
-                                   .multiply(shadow.unitScale(-1, 1))
+                                   .multiply(shadow.unitScale(-0.75, 1))
                                    .pow(2));
     shadow = shadow.resample('bicubic').neq(1).multiply(SETTINGS.OPACITY);
     
