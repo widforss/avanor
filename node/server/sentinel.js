@@ -171,13 +171,13 @@ function Sentinel(SETTINGS) {
 
     function cacheOrbits_(names) {
       orbitCache.cache(names, force, (i, back) => {
-        sentinelGenerate.getCoverage(names[i], back, callback);
+        sentinelGenerate.getCoverage(names[i], back);
       });
     }
 
     function cacheRenders_(names) {
       renderCache.cache(names, force, (i, back) => {
-        sentinelGenerate.queryName(names[i], back, callback);
+        sentinelGenerate.queryName(names[i], back);
       });
     }
   }

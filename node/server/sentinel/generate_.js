@@ -71,7 +71,7 @@ function SentinelGenerate(SETTINGS) {
   }
   function queryDate(dateString, bounds, callback, errback) {
     var date;
-    date  = parseDate(dateString, errback);
+    date = parseDate(dateString, errback);
     if (!date) return;
     date = ee.Date(date);
 
@@ -102,7 +102,7 @@ function SentinelGenerate(SETTINGS) {
 
       var properties = {};
       namesLocal.forEach((name) => {
-        properties[name] = parseName(name, errback);
+        properties[name] = parseName(name);
       });
 
       var orbits = namesLocal.map((name) => {
@@ -162,7 +162,10 @@ function SentinelGenerate(SETTINGS) {
   }
   function queryName(name, callback, errback) {
     var properties = parseName(name, errback);
-    getMap_(ee.Dictionary(queryName_(properties)).get('render'), callback, errback);
+    if (!properties) return;
+    getMap_(ee.Dictionary(queryName_(properties)).get('render'),
+            callback,
+            errback);
   }
   this.queryName = queryName;
 
