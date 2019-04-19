@@ -43,7 +43,7 @@ const SETTINGS = {
       'SEASON_MONTHS':     [0, 1, 2, 3, 4, 11],
       'START_YEAR':        2015,
       'TERRAIN': [
-        'users/widforss/terrain/no_se_50m_z33'
+        'users/widforss/terrain/no_se_50m_z33_fill'
       ],
       'EXTENT': [
         {"type":"Polygon","coordinates":[[[-117.04833,43.53262],[-112.34619,38.83970],[-104.32617,35.31736],[-105.07324,40.63063],[-106.85302,44.87144],[-113.40087,48.98021],[-117.07031,48.98021],[-117.04833,43.53262]]]},
