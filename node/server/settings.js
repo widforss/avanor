@@ -25,7 +25,7 @@ const SETTINGS = {
     },
     'GEN': {
       'COLLECTION':        'COPERNICUS/S1_GRD_FLOAT',
-      'SEC_COLLECTION':    'users/widforss/avanor/daily',
+      'SEC_COLLECTION':    'users/widforss/avanor/daily_no_se',
       'MODE':              'IW',
       'POLARISATION':      'VH',
       'ANGLES':            [30, 50],

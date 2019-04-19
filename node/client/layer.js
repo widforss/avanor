@@ -25,7 +25,7 @@ function Layer(map, layerSelect, firstLayer, SETTINGS, getDate, setState) {
 
   slopesRequest.run('./api/slopes');
 
-  map.addGeoJSON('/static/geojson/se-forecast-areas_wgs84.geojson');
+  map.addGeoJSON('/static/geojson/se-forecast-areas.geojson');
 
   function updateMap() {
     var date = utils.formatDate(getDate()),

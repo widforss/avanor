@@ -1,6 +1,6 @@
 {
   "name": "avanor",
-  "version": "0.3.9-alpha",
+  "version": "0.3.10-alpha",
   "description": "Avalanche detection in Scandinavia",
   "main": "server.js",
   "devDependencies": {
