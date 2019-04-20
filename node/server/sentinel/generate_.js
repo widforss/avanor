@@ -20,7 +20,7 @@ const Errors = require('../errors.js');
  *    - `VIEWPORT_STRIP`   _{boolean}_  Bind returned orbits to viewport.
  */
 function SentinelGenerate(SETTINGS) {
-  var extent = SETTINGS.EXTENT[0];
+  var extent = ee.Geometry(SETTINGS.EXTENT[0]);
   SETTINGS.EXTENT.slice(1).forEach(function(geom) {
     extent = ee.Geometry(extent).union(ee.Geometry(geom));
   });
@@ -456,10 +456,7 @@ function SentinelGenerate(SETTINGS) {
     var delta = actionImg.subtract(refImg).select(0).rename('delta');
     
     var orbitNum  = action.first().get('relativeOrbitNumber_start');
-    var shadow    = shadows.filter(ee.Filter.eq('orbit', orbitNum))
-                                            .map(function(img) {
-                                              return img.gt(20);
-                                            }).first();
+    var shadow = shadows.filter(ee.Filter.eq('orbit', orbitNum)).first();
     shadow = ee.Algorithms.If(shadow, shadow, ee.Image(1));
     shadow = ee.Image(shadow).rename('shadow');
     
@@ -493,7 +490,8 @@ function SentinelGenerate(SETTINGS) {
     image         = ee.Image(image);
     var delta     = image.select('delta');
     var shadow    = image.select('shadow')
-                         .mask(delta.mask());
+                         .mask(delta.mask())
+                         .resample('bicubic');
     var terrain   = image.select('terrain');
     var slopemask = ee.Image(SETTINGS.SLOPE_MASK);
 
@@ -501,9 +499,9 @@ function SentinelGenerate(SETTINGS) {
                                    .unitScale(-2.5, -0.3)
                                    .clamp(0, 1)
                                    .add(0.2)
-                                   .multiply(shadow.unitScale(-0.75, 1))
+                                   .multiply(shadow.eq(0).unitScale(-0.75, 1))
                                    .pow(2));
-    shadow = shadow.resample('bicubic').neq(1).multiply(SETTINGS.OPACITY);
+    shadow = shadow.sqrt().multiply(SETTINGS.OPACITY);
     
     var bg = ee.Image(1);
     if (SETTINGS.SEAMASK) {

@@ -25,7 +25,7 @@ const SETTINGS = {
     },
     'GEN': {
       'COLLECTION':        'COPERNICUS/S1_GRD_FLOAT',
-      'SEC_COLLECTION':    'users/widforss/avanor/daily_no_se',
+      'SEC_COLLECTION':    'users/widforss/avanor/daily',
       'MODE':              'IW',
       'POLARISATION':      'VH',
       'ANGLES':            [30, 50],
@@ -33,8 +33,8 @@ const SETTINGS = {
       'ORBITS':            175,
       'DOUBLE_PERIOD':     true,
       'SENTINEL_FACTOR':   0.04,
-      'SHADOW_DIRECTORY':  'users/widforss/avanor/incident_no_se',
-      'SLOPE_MASK':        'users/widforss/avanor/avalanche_terrain_no_se',
+      'SHADOW_DIRECTORY':  'users/widforss/avanor/layover_shadow_no_se_preliminary',
+      'SLOPE_MASK':        'users/widforss/avanor/avalanche_terrain_no_se_fill',
       'VIEWPORT_STRIP':    true,
       'OPACITY':           0.2,
       'HILLSHADE':         false,
@@ -46,8 +46,7 @@ const SETTINGS = {
         'users/widforss/terrain/no_se_50m_z33_fill'
       ],
       'EXTENT': [
-        {"type":"Polygon","coordinates":[[[-117.04833,43.53262],[-112.34619,38.83970],[-104.32617,35.31736],[-105.07324,40.63063],[-106.85302,44.87144],[-113.40087,48.98021],[-117.07031,48.98021],[-117.04833,43.53262]]]},
-        {"type":"Polygon","coordinates":[[[8.26171,63.64625],[4.35058,62.16550],[4.70214,57.91484],[10.23925,57.96150],[13.62304,59.37798],[15.86425,63.78248],[26.27929,68.86351],[31.06933,69.03714],[31.20117,71.23022],[20.87402,71.17357],[12.17285,68.33437],[8.26171,63.64625]]]}
+        {"type": "Polygon", "coordinates": [[[8.2, 63.70], [4.5, 62.2], [4.8, 57.9], [10.3, 57.9], [13.1, 55.1], [17.2, 56.0], [19.6, 57.4], [19.6, 61.9], [24.3, 65.7], [26.4, 68.9], [31.2, 69.1], [31.3, 71.2], [21.0, 71.2], [12.3, 68.4], [8.2, 63.7]]]},
       ],
     },
   },
