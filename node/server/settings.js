@@ -33,7 +33,7 @@ const SETTINGS = {
       'ORBITS':            175,
       'DOUBLE_PERIOD':     true,
       'SENTINEL_FACTOR':   0.04,
-      'SHADOW_DIRECTORY':  'users/widforss/avanor/layover_shadow_no_se_preliminary',
+      'SHADOW_DIRECTORY':  'users/widforss/avanor/layover_shadow_no_se',
       'SLOPE_MASK':        'users/widforss/avanor/avalanche_terrain_no_se_fill',
       'VIEWPORT_STRIP':    true,
       'OPACITY':           0.2,

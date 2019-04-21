@@ -56,12 +56,12 @@ function Map(div, initPos, SETTINGS, updateMap) {
     target : div,
     logo : false,
     view : new View({
-      extent: [ -100000,  6100000, 1130000, 8000000 ],
+      extent: [ 444000, 7374000, 3548000, 11549000 ],
       resolutions: googResolutions,
       minZoom: 6,
-      center : transform([initPos.x, initPos.y], 'EPSG:4326', 'EPSG:25833'),
+      center : transform([initPos.x, initPos.y], 'EPSG:4326', 'EPSG:3857'),
       zoom : initPos.z,
-      projection: 'EPSG:25833',
+      projection: 'EPSG:3857',
     }),
     interactions: defaultInteractions({
       altShiftDragRotate: false,
@@ -70,64 +70,32 @@ function Map(div, initPos, SETTINGS, updateMap) {
     overlays: [popup.getOverlay()],
   });
 
-  addLayer_([ -1200000, 4700000, 2600000, 8500000 ],
-            [
-              4096,
-              2048,
-              1024,
-              512,
-              256,
-              128,
-              64,
-              32,
-              16,
-              8,
-              // Changed due to licensing issues.
-              //4,
-              //2,
-              //1,
-              //0.5,
-            ],
-            'EPSG:25833',
-            '/static/geojson/se-simplified.geojson',
+  addLayer_([ -20037508.34, -20037508.34, 20037508.34, 20037508.34 ],
+            // License required for higher resolution.
+            // However, it is wide open at (use all caps parameters):
+            // https://kso.etjanster.lantmateriet.se/karta/topowebb/v1.1/wmts?
+            [ 156543.033928041 ].concat(googResolutions.slice(0, 15)),
+            'EPSG:3857',
+            '/static/geojson/se-simplified_wgs84.geojson',
 
             // Changed due to licensing issues. The current is CC0.
             //'https://kso.etjanster.lantmateriet.se/karta/topowebb/v1.1/wmts?'+
             'https://api.lantmateriet.se/open/topowebb-ccby/v1/wmts/' +
                 'token/f6004f59-323f-36ac-b83c-be300ee533d7/?' +
                 'SERVICE=WMTS&REQUEST=GetTile&VERSION=1.0.0&LAYER=topowebb&' +
-                'STYLE=default&TILEMATRIXSET=3006&' +
+                'STYLE=default&TILEMATRIXSET=3857&' +
                 'TILEMATRIX={z}&TILEROW={y}&TILECOL={x}&FORMAT=image/png',
             1);
   
-  addLayer_([ -2500000, 6420992, 1130000, 9045984 ],
-            [
-              21664,
-              10832,
-              5416,
-              2708,
-              1354,
-              677,
-              338.5,
-              169.25,
-              84.625,
-              42.3125,
-              21.15625,
-              10.578125,
-              5.2890625,
-              2.64453125,
-              1.322265625,
-              0.6611328125,
-              0.33056640625,
-              0.165283203125,
-            ],
-            'EPSG:25833',
-            '/static/geojson/no-simplified.geojson',
+  addLayer_([ -20037508.34, -20037508.34, 20037508.34, 20037508.34 ],
+            [ 156543.033928041 ].concat(googResolutions),
+            'EPSG:3857',
+            '/static/geojson/no-simplified_wgs84.geojson',
             'https://opencache.statkart.no/gatekeeper/gk/gk.open_wmts/?' +
-                 'layer=topo4&style=default&tilematrixset=EPSG:25833&' +
+                 'layer=topo4&style=default&tilematrixset=EPSG:3857&' +
                  'Service=WMTS&Request=GetTile&Version=1.0.0&' +
                  'Format=image/png&' +
-                 'TileMatrix=EPSG:25833:{z}&TileCol={x}&TileRow={y}',
+                 'TileMatrix=EPSG:3857:{z}&TileCol={x}&TileRow={y}',
             2);
 
   function onMove(func) {
