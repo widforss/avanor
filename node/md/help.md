@@ -78,7 +78,7 @@ Opens this help window.
 
 ## Data sources
 
-* ©&nbsp;[ESA](http://www.esa.int/ESA) [(CC&nbsp;BY&#8209;SA&nbsp;3.0&nbsp;IGO)](https://creativecommons.org/licenses/by-sa/3.0/igo/)
+* ©&nbsp;[European Space Agency](http://www.esa.int/ESA) [(CC&nbsp;BY&#8209;SA&nbsp;3.0&nbsp;IGO)](https://creativecommons.org/licenses/by-sa/3.0/igo/)
   * [Sentinel&#8209;1&nbsp;SAR&nbsp;Level&#8209;1&nbsp;GRD](https://scihub.copernicus.eu/)
 * ©&nbsp;[Kartverket](https://www.kartverket.no/) [(CC&nbsp;BY&nbsp;4.0)](https://creativecommons.org/licenses/by/4.0/)
   * [DTM&nbsp;10&nbsp;Terrengmodell](https://kartkatalog.geonorge.no/metadata/kartverket/dtm-10-terrengmodell-utm33/dddbb667-1303-4ac5-8640-7ec04c0e3918)
@@ -89,8 +89,8 @@ Opens this help window.
   * [GSD-Höjddata, grid 50+ nh](https://www.lantmateriet.se/sv/Kartor-och-geografisk-information/Hojddata/GSD-Hojddata-grid-50-/)
   * [GSD-Översiktskartan vektor](https://www.lantmateriet.se/sv/Kartor-och-geografisk-information/Kartor/oversiktskartan1/)
   * [Topografisk webbkarta Visning, översiktlig](https://www.lantmateriet.se/sv/Kartor-och-geografisk-information/Geodatatjanster/Visningstjanster/?faq=7e09)
-* ©&nbsp;[Naturvårdsverket](https://www.lavinprognoser.se/)
-  * Lavinprognosområden
+* ©&nbsp;[Swedish Environmental Protection Agency](https://www.lavinprognoser.se/)
+  * Swedish avalanche forecasting area geometries
 
 Generated images are subject to [CC&nbsp;BY&#8209;SA&nbsp;3.0&nbsp;IGO](https://creativecommons.org/licenses/by-sa/3.0/igo/).
 
@@ -98,6 +98,6 @@ Generated images are subject to [CC&nbsp;BY&#8209;SA&nbsp;3.0&nbsp;IGO](https://
 
 [info@avanor.se](mailto:info@avanor.se)
 
-Avanor © 2018 Aron&nbsp;Widforss
+Avanor © 2018–2019 Aron&nbsp;Widforss
 
-**Like what you see?** I am [available for hire](mailto:aron@antarkt.is).
+**Like what you see?** I am [available for hire](https://antarkt.is).
