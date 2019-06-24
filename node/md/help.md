@@ -1,6 +1,6 @@
 **NB! This is a pre-release version of Avanor, and it may or may not work as expected.**
 
-Avanor is an avalanche observation tool. It uses [Sentinel&#8209;1](https://sentinel.esa.int/web/sentinel/missions/sentinel-1) [SAR](https://en.wikipedia.org/wiki/Synthetic-aperture_radar) [GRD](https://sentinel.esa.int/web/sentinel/technical-guides/sentinel-1-sar/products-algorithms/level-1-algorithms/ground-range-detected) data to find changes in reflectance on the ground. Due to the relatively large temporal resolution of the data (6&nbsp;or&nbsp;12&nbsp;days), some avalanches may not be seen due to ground blizzards and other meteorological phenomena that may cover the avalanche with snow. Due to the large spatial resolution (10&nbsp;m), small avalanches may be hard to spot as well. **It is unknown what percentage of avalanches may be observed using Avanor. No study have been performed to validate that Avanor works correctly.**
+Avanor is an avalanche observation tool. It uses [Sentinel&#8209;1](https://sentinel.esa.int/web/sentinel/missions/sentinel-1) [SAR](https://en.wikipedia.org/wiki/Synthetic-aperture_radar) [GRD](https://sentinel.esa.int/web/sentinel/technical-guides/sentinel-1-sar/products-algorithms/level-1-algorithms/ground-range-detected) data to find changes in reflectance on the ground. The effectiveness depends on latitude, terrain, avalanche size and snow conditions over time.
 
 ## Understanding the map
 
@@ -8,7 +8,7 @@ Avanor is an avalanche observation tool. It uses [Sentinel&#8209;1](https://sent
 
 ### <svg viewBox="-1 -1 2 2"><circle r="1" fill="red"/></svg> Detected changes and avalanches
 
-All Avanor images have a timespan of 6&nbsp;or&nbsp;12 days. The changes are shown in red on the map, and while there will be some noise (weak red spots scattered over the map), detected avalanches are easily recognized as red stripes or areas. Due to the large temporal resolution the same avalanche may end up on multiple days worth of images. To more exactly get the date of an avalanche one can step back one day at a time and find the first image that shows that specific avalanche.
+Avalanche uses change detection, i.e. it compares two images to find differences that has occured over time. All Avanor images have a timespan of 6&nbsp;or&nbsp;12 days. The changes are shown in red on the map, and while there will be some noise (weak red spots scattered over the map), detected avalanches are easily recognized as red stripes or areas. Due to the large temporal resolution the same avalanche may end up on multiple days worth of images. To more exactly get the date of an avalanche one can step back one day at a time and find the first image that shows that specific avalanche.
 
 ### <svg viewBox="-1 -1 2 2"><circle r="1" fill="#7570b3"/></svg> Avalanche terrain
 
@@ -61,8 +61,14 @@ Removes the current image temporarily to make it easier to navigate.
 
 Opens this help window.
 
-## Presentations
+## Presentations and reports
 
+* 2019-06-20
+  * Luleå
+    * [Bachelor's degree project](http://urn.kb.se/resolve?urn=urn:nbn:se:ltu:diva-74556)
+* 2019-06-04
+  * Luleå
+    * [Bachelor's degree presentation](static/presentations/190604/avanor_bachelors_presentation_2019-06-04.pdf)
 * 2019-02-13
   * Stockholm
     * [Princess Victoria & Swedish Polar Research Secretariat](static/presentations/190213/avanor_polar_2019-02-13.pdf)
