@@ -18,7 +18,7 @@ const SETTINGS = {
       'BUFFER':             0,
     },
     'ROLL_LONG': {
-      'FAST':               15000,
+      'FAST':               7500,
       'SLOW':               70000,
       'DAYS':               1110,
       'BUFFER':             7,

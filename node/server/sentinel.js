@@ -20,6 +20,7 @@ function Sentinel(SETTINGS) {
   [SETTINGS.ROLL_LONG, SETTINGS.ROLL_SHORT].forEach((roll) => {
     if (roll) {
       new SentinelRoll(roll, sentinelGenerate.parseDate, (dateString) => {
+        console.log(dateString);
         getNames_(dateString, null, SETTINGS.PROP_DAYS, true, false, null);
       })
     }

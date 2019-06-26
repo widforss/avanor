@@ -23,19 +23,14 @@ function SentinelRoll(SETTINGS, testDate, func) {
       return;
     }
 
-    try {
-      testDate(dateString);
-      cachedDays++;
-    } catch (e) {
-      if (e instanceof Errors.BeforeStartError) {
-        wrapAround_();
-      } else if (e instanceof Errors.OutOfSeasonError) {
-        rollInstance_();
-      } else {
-        Errors.handle(e);
-      }
+    var isError;
+    var date = testDate(dateString);
+
+    if (!date) {
+      setTimeout(rollInstance_, 0);
       return;
     }
+    cachedDays++;
 
     func(dateString);
     setTimeout(rollInstance_, rollWait);
