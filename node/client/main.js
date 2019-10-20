@@ -1,4 +1,5 @@
 import {Layer} from "./layer.js";
+import {Njunis} from "./njunis.js";
 import {Control} from "./control.js";
 import {Map} from "./ol.js";
 import {Label} from "./label.js";
@@ -29,6 +30,10 @@ function run() {
                         SETTINGS.LAYER,
                         control.getDate,
                         setState_);
+  var njunis = new Njunis(map,
+                        control.getLayerSelect(),
+                        SETTINGS.NJUNIS,
+                        control.getDate);
   var label = new Label(map, readState.labelInit(), getUrl_);
   var persistency = new Persistency(map,
                                     control,
@@ -38,12 +43,14 @@ function run() {
 
   map.onMove(mapMoved_);
   map.onClick(label.setLabel);
+  map.infoPointClick(label.infoPointLabel);
   control.getLayerSelect().setFunc(label.clearLabel);
 
   document.getElementById('body').appendChild(control.getDiv());
 
   function updateDate_() {
     map.removeEe();
+    map.removeInfoPoints();
     updateMap_();
   }
 
@@ -58,6 +65,7 @@ function run() {
     timeOutKey = window.setTimeout(() => {
       persistency.setState();
       layer.updateMap();
+      njunis.updateMap();
     }, SETTINGS.THROTTLE_DELAY);
   }
 

@@ -25,6 +25,24 @@ function Label(map, labelOnInit, getUrl) {
 
   if (labelOnInit) setLabel(map.getX(), map.getY());
 
+  function infoPointLabel(point) {
+    if (currentLabel) {
+      map.rmLabel(currentLabel);
+      currentLabel = null;
+    }
+    labelPosition = {x: point.coordinates[0], y: point.coordinates[1]};
+
+    var content = document.createElement('div');
+    content.innerHTML = '';
+    for (var prop in point.info) {
+      content.innerHTML +=
+          '<strong>' + prop + ':</strong> ' + point.info[prop] + '<br>';
+    }
+    map.addLabel(labelPosition.x, labelPosition.y, content);
+    getUrl();
+  }
+  this.infoPointLabel = infoPointLabel;
+
   function setLabel(x, y) {
     if (currentLabel) {
       map.rmLabel(currentLabel);

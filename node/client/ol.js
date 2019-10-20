@@ -7,9 +7,9 @@ import WMTSTileGrid from 'ol/tilegrid/WMTS';
 import WMTS from 'ol/source/WMTS';
 import XYZ from 'ol/source/XYZ';
 import GeoJSON from 'ol/format/GeoJSON';
-import Style from 'ol/style/Style';
-import Stroke from 'ol/style/Stroke';
-import Fill from 'ol/style/Fill';
+import Feature from 'ol/Feature';
+import {Circle as CircleStyle, Fill, Stroke, Style} from 'ol/style.js';
+import Point from 'ol/geom/Point';
 import {transform, transformExtent, get as getProjection} from 'ol/proj';
 import {defaults as defaultInteractions} from 'ol/interaction';
 import {register} from 'ol/proj/proj4.js';
@@ -70,6 +70,29 @@ function Map(div, initPos, SETTINGS, updateMap) {
     overlays: [popup.getOverlay()],
   });
 
+  var points = [];
+  var trigpointLayer = new VectorLayer({
+    source: new Vector({
+      wrapX: false,
+    }),
+    zIndex: SETTINGS.NJUNIS_TRIG_Z,
+  });
+  var obspointLayer = new VectorLayer({
+    source: new Vector({
+      wrapX: false,
+    }),
+    zIndex: SETTINGS.NJUNIS_OBS_Z,
+  });
+  var oldpointLayer = new VectorLayer({
+    source: new Vector({
+      wrapX: false,
+    }),
+    zIndex: SETTINGS.NJUNIS_OLD_Z,
+  });
+  map.addLayer(trigpointLayer);
+  map.addLayer(obspointLayer);
+  map.addLayer(oldpointLayer);
+
   addLayer_([ -20037508.34, -20037508.34, 20037508.34, 20037508.34 ],
             // License required for higher resolution.
             // However, it is wide open at (use all caps parameters):
@@ -107,14 +130,37 @@ function Map(div, initPos, SETTINGS, updateMap) {
 
   function onClick(func) {
     map.on('singleclick', (e) => {
-      var proj = map.getView().getProjection();
-      var coord = transform(e.coordinate, proj, 'EPSG:4326');
-      var lat = coord[1];
-      var lon = coord[0];
-      func(lon, lat);
+      var features =
+          map.getFeaturesAtPixel(e.pixel).map((feat) => feat.getProperties());
+      var isInfoPoint;
+      for (var feature of features) {
+        if (feature.id) isInfoPoint = true;
+      }
+      if (!isInfoPoint) {
+        var proj = map.getView().getProjection();
+        var coord = transform(e.coordinate, proj, 'EPSG:4326');
+        var lat = coord[1];
+        var lon = coord[0];
+        func(lon, lat);
+      }
     });
   }
   this.onClick = onClick;
+
+  function infoPointClick(func) {
+    map.on('singleclick', (e) => {
+      var done;
+      map.forEachFeatureAtPixel(e.pixel, (feature, layer) => {
+        var feat = feature.getProperties();
+        if (!done && feat.id) {
+          done = true;
+          func(feat);
+          return true;
+        }
+      });
+    });
+  }
+  this.infoPointClick = infoPointClick;
 
   function addLabel(x, y, content) {
     var proj = map.getView().getProjection();
@@ -252,6 +298,60 @@ function Map(div, initPos, SETTINGS, updateMap) {
     addGeoJSON_(url, 3);
   }
   this.addGeoJSON = addGeoJSON;
+
+  function addInfoPoint(point, type) {
+    var proj = map.getView().getProjection();
+    point.geometry = new Point(transform(point.coordinates, 'EPSG:4326', proj));
+
+    if (!points[point.id] || new Date() - points[point.id] > 60000) {
+      points[point.id] = new Date();
+
+      var pointFeature = new Feature(point);
+      pointFeature.setStyle(
+        new Style({
+          image: new CircleStyle({
+            radius: point.size,
+            fill: new Fill({
+              color: [55, 55, 55, 0.5],
+            }),
+            stroke: new Stroke({
+              color: point.color,
+              width: 3,
+            }),
+          })
+        })
+      );
+
+      switch (type) {
+        case 'trig':
+          trigpointLayer
+            .getSource()
+            .addFeature(pointFeature);
+          break;
+        case 'obs':
+          obspointLayer
+            .getSource()
+            .addFeature(pointFeature);
+          break;
+        case 'old':
+          oldpointLayer
+            .getSource()
+            .addFeature(pointFeature);
+          break;
+        default:
+          throw new Error('Invalid infopoint type!');
+      }
+    }
+  }
+  this.addInfoPoint = addInfoPoint;
+
+  function removeInfoPoints() {
+    trigpointLayer.getSource().clear();
+    obspointLayer.getSource().clear();
+    oldpointLayer.getSource().clear();
+    points = [];
+  }
+  this.removeInfoPoints = removeInfoPoints;
 
   function addLayer_(extent, resolutions, projection, boundsUrl, tileUrl, z) {
     const tileGrid = new WMTSTileGrid({

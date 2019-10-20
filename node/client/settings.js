@@ -13,6 +13,13 @@ var SETTINGS = {
   LAYER: {
     NO_LAYER_STR:   'No satellite data found.',
   },
+  NJUNIS: {
+    NJUNIS_HOST: 'https://njunis.avanor.se',
+    TIMEZONE: 'Europe/Stockholm',
+    OBSPERIOD: 6,
+    START_DIST: 6,
+    OLD_DIST: 30,
+  },
   CONTROL: {
     TITLE:        '<h1><img src="/static/media/logo/logo.svg"/> Avanor</h1>',
     HELP_FAIL:    'Failed to fetch help page. Click here to try again.',
@@ -48,6 +55,9 @@ var SETTINGS = {
   MAP: {
     SLOPES_LAYER_Z: 4,
     EE_LAYER_Z: 5,
+    NJUNIS_TRIG_Z: 7,
+    NJUNIS_OBS_Z: 8,
+    NJUNIS_OLD_Z: 6,
     EXP_TIMEOUT: 500,
   },
 };
