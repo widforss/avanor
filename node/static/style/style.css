@@ -21,6 +21,15 @@ h1 > img {
   width: auto;
 }
 
+.header {
+  display: block;
+  font-size: 2em;
+  margin-top: 0.67em;
+  margin: 0;
+  font-weight: bold;
+  background-color: #FFF !important;
+}
+
 #mapid {
   height: 100%;
 }
@@ -151,6 +160,10 @@ h1 > img {
   transform: translate(-50%, -50%);
 }
 
+#popup-content * .controlButton > .controlText {
+  transform: translate(-50%, 0);
+}
+
 .about {
   flex-grow: 1;
   display: flex;
@@ -243,4 +256,8 @@ h1 > img {
 
 .closer > .controlButton {
   height: 34px;
+}
+
+#error {
+  color: red;
 }

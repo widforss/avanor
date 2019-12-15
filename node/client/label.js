@@ -3,7 +3,7 @@ import {Utils} from "./utils/utils_.js";
 /**
  * @constructor
  */
-function Label(map, labelOnInit, getUrl) {
+function Label(map, readState, getUrl, njunis) {
   var utils = new Utils();
   var currentLabel;
   var labelPosition;
@@ -23,9 +23,9 @@ function Label(map, labelOnInit, getUrl) {
         '<a href="' + getUrl() + '">Shareable link</a>';
   });
 
-  if (labelOnInit) setLabel(map.getX(), map.getY());
+  if (readState.labelInit()) setLabel(map.getX(), map.getY());
 
-  function infoPointLabel(point) {
+  function infoPointLabel(point, popup) {
     if (currentLabel) {
       map.rmLabel(currentLabel);
       currentLabel = null;
@@ -38,7 +38,16 @@ function Label(map, labelOnInit, getUrl) {
       content.innerHTML +=
           '<strong>' + prop + ':</strong> ' + point.info[prop] + '<br>';
     }
-    map.addLabel(labelPosition.x, labelPosition.y, content);
+
+    let callback = () => {
+      njunis.updateMap(() => infoPointLabel(map.points[point.id].values_, false));
+    };
+    let visible = njunis.visibleButton(point, callback);
+    map.EeTrigger = callback;
+
+    content.appendChild(visible);
+
+    map.addLabel(labelPosition.x, labelPosition.y, content, popup);
     getUrl();
   }
   this.infoPointLabel = infoPointLabel;

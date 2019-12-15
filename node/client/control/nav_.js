@@ -1,9 +1,9 @@
-import {ControlUtils} from "./utils/utils_.js";
+import {ControlUtils} from "../utils/utils_.js";
 
 /**
  * @constructor
  */
-function ControlNav(map, basemap, SETTINGS, toggle, setState) {
+function ControlNav(map, SETTINGS, helpToggle, loginToggle, loginState) {
   var controlUtils = new ControlUtils();
 
   var minus = new controlUtils.Button('－', () => {
@@ -16,11 +16,11 @@ function ControlNav(map, basemap, SETTINGS, toggle, setState) {
     if (zoom < SETTINGS.ZOOM[1]) map.setZoom(zoom + 1);
   });
 
-  var mapSelect = new controlUtils.Select(SETTINGS.MAPS, setBaseMap_);
-  var basemapIdx = SETTINGS.MAPS.indexOf(basemap);
-  basemapIdx = basemapIdx == -1 ? 0 : basemapIdx;
-  mapSelect.setValue(basemapIdx);
-  setBaseMap_();
+  var login = new controlUtils.Button('Sign in', loginToggle);
+  login.getDiv().id = "login";
+  var logout = new controlUtils.Button('Sign out');
+  logout.getDiv().id = "logout";
+  logout.getDiv().classList.add("clicked");
 
   var mapToggle = new controlUtils.Button(SETTINGS.HIDE_MAP, () => {
     if (mapToggle.getText() == SETTINGS.HIDE_MAP) {
@@ -35,26 +35,27 @@ function ControlNav(map, basemap, SETTINGS, toggle, setState) {
   });
   mapToggle.getDiv().classList.add('showButton');
 
-  var mapHelp = new controlUtils.Button('Help', toggle);
+  var mapHelp = new controlUtils.Button('About', helpToggle);
   mapHelp.getDiv().classList.add('help');
 
   var navDiv = document.createElement("div");
   navDiv.appendChild(minus.getDiv());
   navDiv.appendChild(plus.getDiv());
-  navDiv.appendChild(mapSelect.getDiv());
+  navDiv.appendChild(login.getDiv());
+  navDiv.appendChild(logout.getDiv());
   navDiv.appendChild(mapToggle.getDiv());
   navDiv.appendChild(mapHelp.getDiv());
+
+  if (loginState) {
+    login.getDiv().classList.add('hidden');
+  } else {
+    logout.getDiv().classList.add('hidden');
+  }
 
   function getDiv() {
     return navDiv;
   }
   this.getDiv = getDiv;
-
-  function setBaseMap_() {
-    var basemap = mapSelect.getValue();
-    map.setBaseMap(basemap);
-    setState();
-  }
 }
 
 export {ControlNav};

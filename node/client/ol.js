@@ -70,28 +70,47 @@ function Map(div, initPos, SETTINGS, updateMap) {
     overlays: [popup.getOverlay()],
   });
 
-  var points = [];
+  this.points = [];
   var trigpointLayer = new VectorLayer({
     source: new Vector({
+      renderers: ['Canvas', 'VML'],
       wrapX: false,
     }),
     zIndex: SETTINGS.NJUNIS_TRIG_Z,
   });
   var obspointLayer = new VectorLayer({
     source: new Vector({
+      renderers: ['Canvas', 'VML'],
       wrapX: false,
     }),
     zIndex: SETTINGS.NJUNIS_OBS_Z,
   });
   var oldpointLayer = new VectorLayer({
     source: new Vector({
+      renderers: ['Canvas', 'VML'],
       wrapX: false,
     }),
     zIndex: SETTINGS.NJUNIS_OLD_Z,
   });
+  var futurepointLayer = new VectorLayer({
+    source: new Vector({
+      renderers: ['Canvas', 'VML'],
+      wrapX: false,
+    }),
+    zIndex: SETTINGS.NJUNIS_FUTURE_Z,
+  });
+  var fieldpointLayer = new VectorLayer({
+    source: new Vector({
+      renderers: ['Canvas', 'VML'],
+      wrapX: false,
+    }),
+    zIndex: SETTINGS.NJUNIS_FIELD_Z,
+  });
   map.addLayer(trigpointLayer);
   map.addLayer(obspointLayer);
   map.addLayer(oldpointLayer);
+  map.addLayer(futurepointLayer);
+  map.addLayer(fieldpointLayer);
 
   addLayer_([ -20037508.34, -20037508.34, 20037508.34, 20037508.34 ],
             // License required for higher resolution.
@@ -162,11 +181,11 @@ function Map(div, initPos, SETTINGS, updateMap) {
   }
   this.infoPointClick = infoPointClick;
 
-  function addLabel(x, y, content) {
+  function addLabel(x, y, content, doPopup) {
     var proj = map.getView().getProjection();
     var coord = transform([x, y], 'EPSG:4326', proj);
     popup.setContent(content);
-    popup.setPosition(coord);
+    if (doPopup !== false) popup.setPosition(coord);
     return ++labelCounter;
   }
   this.addLabel = addLabel;
@@ -204,6 +223,7 @@ function Map(div, initPos, SETTINGS, updateMap) {
 
   function setEe(mapid, token) {
     setEeLayer_(mapid, token, SETTINGS.EE_LAYER_Z);
+    if (this.EeTrigger) this.EeTrigger();
   }
   this.setEe = setEe;
 
@@ -299,12 +319,16 @@ function Map(div, initPos, SETTINGS, updateMap) {
   }
   this.addGeoJSON = addGeoJSON;
 
-  function addInfoPoint(point, type) {
+  function addInfoPoint(point) {
     var proj = map.getView().getProjection();
+    let points = this.points;
     point.geometry = new Point(transform(point.coordinates, 'EPSG:4326', proj));
+    point.date = new Date();
 
-    if (!points[point.id] || new Date() - points[point.id] > 60000) {
-      points[point.id] = new Date();
+    if (!points[point.id] ||
+      point.date - points[point.id].values_.date > 60000 ||
+      point.size != points[point.id].values_.size ||
+      point.color != points[point.id].values_color) {
 
       var pointFeature = new Feature(point);
       pointFeature.setStyle(
@@ -322,26 +346,41 @@ function Map(div, initPos, SETTINGS, updateMap) {
         })
       );
 
-      switch (type) {
+      if (points[point.id]) {
+        [
+          trigpointLayer,
+          obspointLayer,
+          oldpointLayer,
+          futurepointLayer,
+          fieldpointLayer
+        ].forEach((layer) => {
+          try {
+            layer.getSource().removeFeature(points[point.id]);
+          } catch(e) {}
+        });
+      }
+
+      switch (point.type) {
         case 'trig':
-          trigpointLayer
-            .getSource()
-            .addFeature(pointFeature);
+          trigpointLayer.getSource().addFeature(pointFeature);
           break;
         case 'obs':
-          obspointLayer
-            .getSource()
-            .addFeature(pointFeature);
+          obspointLayer.getSource().addFeature(pointFeature);
           break;
         case 'old':
-          oldpointLayer
-            .getSource()
-            .addFeature(pointFeature);
+          oldpointLayer.getSource().addFeature(pointFeature);
+          break;
+        case 'future':
+          futurepointLayer.getSource().addFeature(pointFeature);
+          break;
+        case 'field':
+          fieldpointLayer.getSource().addFeature(pointFeature);
           break;
         default:
           throw new Error('Invalid infopoint type!');
       }
     }
+    points[point.id] = pointFeature;
   }
   this.addInfoPoint = addInfoPoint;
 
@@ -349,7 +388,8 @@ function Map(div, initPos, SETTINGS, updateMap) {
     trigpointLayer.getSource().clear();
     obspointLayer.getSource().clear();
     oldpointLayer.getSource().clear();
-    points = [];
+    futurepointLayer.getSource().clear();
+    fieldpointLayer.getSource().clear();
   }
   this.removeInfoPoints = removeInfoPoints;
 

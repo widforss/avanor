@@ -23,18 +23,23 @@ function run() {
                             readState.controlInit(),
                             SETTINGS.CONTROL,
                             updateDate_,
-                            setState_);
+                            setState_,
+                            setToken_,
+                            readState);
+  var njunis = new Njunis(map,
+                        readState,
+                        control,
+                        SETTINGS.NJUNIS);
+  var label = new Label(map,
+                        readState,
+                        getUrl_,
+                        njunis);
   var layer = new Layer(map,
-                        control.getLayerSelect(),
+                        control,
                         readState.layerInit(),
                         SETTINGS.LAYER,
-                        control.getDate,
-                        setState_);
-  var njunis = new Njunis(map,
-                        control.getLayerSelect(),
-                        SETTINGS.NJUNIS,
-                        control.getDate);
-  var label = new Label(map, readState.labelInit(), getUrl_);
+                        setState_,
+                        label);
   var persistency = new Persistency(map,
                                     control,
                                     label,
@@ -65,7 +70,11 @@ function run() {
     timeOutKey = window.setTimeout(() => {
       persistency.setState();
       layer.updateMap();
-      njunis.updateMap();
+      if (map.EeTrigger) {
+        map.EeTrigger()
+      } else {
+        njunis.updateMap();
+      };
     }, SETTINGS.THROTTLE_DELAY);
   }
 
@@ -76,6 +85,16 @@ function run() {
   function setState_() {
     if (persistency) {
       return persistency.setState();
+    } else {
+      return () => {};
+    }
+  }
+
+  function setToken_(token) {
+    if (persistency) {
+      label.clearLabel();
+      map.rmLabel();
+      return persistency.setToken(token);
     } else {
       return () => {};
     }

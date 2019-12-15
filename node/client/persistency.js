@@ -19,6 +19,11 @@ function ReadState(SETTINGS) {
     z: parseFloat(url.searchParams.get('z')),
   }
 
+  function getToken() {
+    return cookie.getCookie('token');
+  }
+  this.getToken = getToken;
+
   function mapInit() {
     if (params.x && params.y && params.z) {
       return {x: params.x, y: params.y, z: params.z};
@@ -66,8 +71,9 @@ function ReadState(SETTINGS) {
                helpCookie == 'hidden' ?
                    false :
                    true;
+    var login = cookie.getCookie('token') ? true : false;
 
-    return {initDate, basemap, help};
+    return {initDate, basemap, help, login};
   }
   this.controlInit = controlInit;
 }
@@ -78,6 +84,11 @@ function ReadState(SETTINGS) {
 function Persistency(map, control, label, layer, SETTINGS) {
   var utils = new Utils();
   var cookie = new Cookie(SETTINGS.COOKIE);
+
+  function setToken(token) {
+    cookie.setCookie('token', token);
+  }
+  this.setToken = setToken;
 
   function setState() {
     cookie.setCookie('x', map.getX());

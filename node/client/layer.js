@@ -3,13 +3,13 @@ import {Utils}   from "./utils/utils_.js";
 /**
  * @constructor
  */
-function Layer(map, layerSelect, firstLayer, SETTINGS, getDate, setState) {
+function Layer(map, control, firstLayer, SETTINGS, setState, label) {
   var utils = new Utils();
 
   var layerNames;
   var currentName;
 
-  layerSelect.setFunc(selectEvent_);
+  control.getLayerSelect().setFunc(selectEvent_);
 
   var slopesRequest = new utils.Request((text) => {
     var creds = JSON.parse(text)
@@ -28,7 +28,7 @@ function Layer(map, layerSelect, firstLayer, SETTINGS, getDate, setState) {
   map.addGeoJSON('/static/geojson/se-forecast-areas_wgs84.geojson');
 
   function updateMap() {
-    var date = utils.formatDate(getDate()),
+    var date = utils.formatDate(control.getDate()),
         bounds = JSON.stringify(map.getBounds()),
         url = "./api/name/" + date + '?bounds=' + bounds;
 
@@ -51,15 +51,15 @@ function Layer(map, layerSelect, firstLayer, SETTINGS, getDate, setState) {
     layerNames = layerNamesParam;
     
     if (layerNames.length) {
-      layerSelect.setOptions(layerNames);
+      control.getLayerSelect().setOptions(layerNames);
       var idx = layerNames.indexOf(currentName ?
                                    currentName :
                                    firstLayer);
       idx     = idx == -1 ? 0 : idx;
-      layerSelect.setValue(idx);
+      control.getLayerSelect().setValue(idx);
       selectEvent_();
     } else {
-      layerSelect.setText(SETTINGS.NO_LAYER_STR);
+      control.getLayerSelect().setText(SETTINGS.NO_LAYER_STR);
       currentName = null;
       firstLayer = null;
     }
@@ -70,7 +70,7 @@ function Layer(map, layerSelect, firstLayer, SETTINGS, getDate, setState) {
    */
   function selectEvent_() {
     var oldName = currentName;
-    currentName = layerSelect.getValue();
+    currentName = control.getLayerSelect().getValue();
     setState();
 
     if (oldName !== currentName || !oldName) {

@@ -1,12 +1,12 @@
-import {Utils}   from "./utils/utils_.js";
+import {Utils, ControlUtils}   from "./utils/utils_.js";
 import {ControlCal}   from "./control/cal_.js";
 import {ControlNav}   from "./control/nav_.js";
-import {ControlUtils} from "./control/utils/utils_.js";
+import {LoginHandler} from "./control/login_.js";
 
 /**
  * @constructor
  */
-function Control(map, initVals, SETTINGS, notify_, setState) {
+function Control(map, initVals, SETTINGS, notify_, setState, setToken, readState) {
   var utils  = new Utils();
   var controlUtils  = new ControlUtils();
 
@@ -14,18 +14,26 @@ function Control(map, initVals, SETTINGS, notify_, setState) {
   var controlCal   = new ControlCal(notify_, initVals.initDate, SETTINGS.DATE);
   var controlMap   = new controlUtils.Select([], () => {});
   var controlNav   = new ControlNav(map,
-                                    initVals.basemap,
                                     SETTINGS.NAV,
                                     toggleHelp_,
-                                    setState);
+                                    toggleLogin_,
+                                    initVals.login);
 
   var aboutRequest = new utils.Request((text) => {
     aboutText.getDiv().innerHTML = text;
   });
+  var loginRequest = new utils.Request((text) => {
+    loginText.getDiv().innerHTML = text;
+    new LoginHandler(setToken, readState);
+  });
   window['fetchHelp'] = () => {
     aboutRequest.run(SETTINGS.HELP_ADDRESS);
   };
+  window['fetchLogin'] = () => {
+    loginRequest.run(SETTINGS.LOGIN_ADDRESS);
+  };
   window['fetchHelp']();
+  window['fetchLogin']();
 
   var closed = false;
   var controlClose = new controlUtils.Button('⨯', () => {
@@ -77,10 +85,26 @@ function Control(map, initVals, SETTINGS, notify_, setState) {
   about.getDiv().classList.add('about');
   aboutOk.getDiv().classList.add('help');
   aboutText.getDiv().classList.add('aboutText');
-  if (!initVals.help) toggleHelp_();
+
+  var loginTitle = new controlUtils.Text(SETTINGS.LOGIN_TITLE);
+  var loginText = new controlUtils.Text(null);
+  var loginOk = new controlUtils.Button('Close this dialog', toggleLogin_);
+  var login = new controlUtils.Control([
+    loginTitle.getDiv(),
+    loginText.getDiv(),
+    loginOk.getDiv(),
+  ]);
+  login.getDiv().classList.add('about');
+  loginOk.getDiv().classList.add('help');
+  loginText.getDiv().classList.add('aboutText');
+  login.getDiv().classList.add('hidden');
+  if (!initVals.help) {
+    toggleHelp_();
+  }
   
   controlContainer.appendChild(controlPanel.getDiv());
   controlContainer.appendChild(about.getDiv());
+  controlContainer.appendChild(login.getDiv());
 
   function getDiv() {
     return controlContainer;
@@ -103,10 +127,16 @@ function Control(map, initVals, SETTINGS, notify_, setState) {
   this.isHelpHidden = isHelpHidden;
 
   function toggleHelp_() {
-    var aboutClasses = about.getDiv().classList;
-    aboutClasses.toggle('hidden');
+    about.getDiv().classList.toggle('hidden');
     controlPanel.getDiv().classList.toggle('hidden');
+    login.getDiv().classList.add('hidden');
     setState();
+  }
+
+  function toggleLogin_() {
+    about.getDiv().classList.add('hidden');
+    controlPanel.getDiv().classList.remove('hidden');
+    login.getDiv().classList.toggle('hidden');
   }
 }
 

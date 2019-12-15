@@ -5,7 +5,6 @@ var SETTINGS = {
   PERSISTENCY: {
     INITPOS: {x: 14.6, y: 66.5, z: 12},
     DEFAULT_DATE: '2017-01-30',
-    DEFAULT_MAP: 'SE & NO',
     COOKIE: {
       COOKIELIFE: 30 * 24 * 3600 * 1000,
     },
@@ -14,7 +13,7 @@ var SETTINGS = {
     NO_LAYER_STR:   'No satellite data found.',
   },
   NJUNIS: {
-    NJUNIS_HOST: 'https://njunis.avanor.se',
+    NJUNIS_HOST: 'http://localhost:8008',
     TIMEZONE: 'Europe/Stockholm',
     OBSPERIOD: 6,
     START_DIST: 6,
@@ -22,8 +21,10 @@ var SETTINGS = {
   },
   CONTROL: {
     TITLE:        '<h1><img src="/static/media/logo/logo.svg"/> Avanor</h1>',
+    LOGIN_TITLE: '<span class="header">Avalanche Database Login</span>',
     HELP_FAIL:    'Failed to fetch help page. Click here to try again.',
     HELP_ADDRESS: './md/help.md',
+    LOGIN_ADDRESS: './static/html/login.html',
     DATE: {
       START_YEAR:       2017,
       SEASON_MONTHS:    [0, 1, 2, 3, 4, 11],
@@ -47,7 +48,6 @@ var SETTINGS = {
     },
     NAV: {
       ZOOM:        [0, 24],
-      MAPS:        ['SE & NO'],
       HIDE_MAP:    'Hide',
       SHOW_MAP:    'Show',
     },
@@ -55,9 +55,11 @@ var SETTINGS = {
   MAP: {
     SLOPES_LAYER_Z: 4,
     EE_LAYER_Z: 5,
-    NJUNIS_TRIG_Z: 7,
-    NJUNIS_OBS_Z: 8,
+    NJUNIS_TRIG_Z: 9,
+    NJUNIS_OBS_Z: 10,
     NJUNIS_OLD_Z: 6,
+    NJUNIS_FUTURE_Z: 7,
+    NJUNIS_FIELD_Z: 8,
     EXP_TIMEOUT: 500,
   },
 };
