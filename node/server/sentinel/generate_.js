@@ -372,7 +372,7 @@ function SentinelGenerate(SETTINGS) {
                      .filterBounds(terrain.geometry())
 
     var allImgs = primImgs.merge(secImgs)
-                          .distinct(ee.SelectorSet('system:index'))
+                          .distinct('system:index')
                           .sort('system:time_start', false);
     
     if (bounds && SETTINGS.VIEWPORT_STRIP) {
