@@ -282,10 +282,11 @@ function Njunis(map, readState, control, SETTINGS) {
     }
 
     switch (type) {
-      case 'old':
       case 'radarold':
-      case 'future':
       case 'radarfuture':
+        point.radarId = response._id_public;
+      case 'old':
+      case 'future':
         point.color = 'grey';
         point.size = 3;
         break;
