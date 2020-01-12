@@ -24,7 +24,7 @@ function Control(map, initVals, SETTINGS, notify_, setState, setToken, readState
   });
   var loginRequest = new utils.Request((text) => {
     loginText.getDiv().innerHTML = text;
-    new LoginHandler(setToken, readState);
+    new LoginHandler(setToken, readState, map);
   });
   window['fetchHelp'] = () => {
     aboutRequest.run(SETTINGS.HELP_ADDRESS);

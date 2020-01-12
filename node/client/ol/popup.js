@@ -25,6 +25,11 @@ function Popup(updateMap) {
   }
   this.setPosition = setPosition;
 
+  function getPosition() {
+    return overlay.getPosition();
+  }
+  this.getPosition = getPosition;
+
   function setContent(text) {
     while (content.firstChild) {
       content.removeChild(content.firstChild);

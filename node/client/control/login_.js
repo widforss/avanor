@@ -1,4 +1,4 @@
-function LoginHandler(setToken, readState) {
+function LoginHandler(setToken, readState, map) {
   let emailInput = document.getElementById('form-email-field');
   let gdprInput = document.getElementById('form-gdpr-field');
   let codeInput = document.getElementById('form-code-field');
@@ -48,11 +48,12 @@ function LoginHandler(setToken, readState) {
         codeFailed_();
         return;
       }
-        error.innerHTML = 'Successfully logged in!';
+      error.innerHTML = 'Successfully logged in!';
       codeForm.classList.add('hidden');
       login.classList.add('hidden');
       logout.classList.remove('hidden');
       setToken(JSON.parse(this.response).session);
+      map.setTranslate(true);
     }
     function codeFailed_() {
       error.innerHTML = 'Incorrect code.';
@@ -84,6 +85,7 @@ function LoginHandler(setToken, readState) {
       gdprInput.checked = false;
       codeInput.value = '';
       setToken('');
+      map.setTranslate(false);
     }
     let token = readState.getToken();
     let revokeReq = new XMLHttpRequest();

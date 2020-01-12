@@ -12,12 +12,13 @@ import {Circle as CircleStyle, Fill, Stroke, Style} from 'ol/style.js';
 import Point from 'ol/geom/Point';
 import {transform, transformExtent, get as getProjection} from 'ol/proj';
 import {defaults as defaultInteractions} from 'ol/interaction';
+import Translate from 'ol/interaction/Translate';
 import {register} from 'ol/proj/proj4.js';
 import proj4 from 'proj4';
 
 import {Popup} from './ol/popup.js';
 
-function Map(div, initPos, SETTINGS, updateMap) {
+function Map(div, initPos, SETTINGS, updateMap, setObsPos) {
   var eeLayers = [];
   var eeHidden = false;
   var labelCounter = 0;
@@ -106,11 +107,38 @@ function Map(div, initPos, SETTINGS, updateMap) {
     }),
     zIndex: SETTINGS.NJUNIS_FIELD_Z,
   });
+  var radarpointLayer = new VectorLayer({
+    source: new Vector({
+      renderers: ['Canvas', 'VML'],
+      wrapX: false,
+    }),
+    zIndex: SETTINGS.NJUNIS_RADAR_Z,
+  });
   map.addLayer(trigpointLayer);
   map.addLayer(obspointLayer);
   map.addLayer(oldpointLayer);
   map.addLayer(futurepointLayer);
   map.addLayer(fieldpointLayer);
+  map.addLayer(radarpointLayer);
+  var infoPointTranslate = new Translate({
+    layers: [
+      trigpointLayer,
+      obspointLayer,
+      oldpointLayer,
+      futurepointLayer,
+      fieldpointLayer,
+      radarpointLayer,
+    ],
+  });
+  infoPointTranslate.on('translateend', (e) => {
+    let point = e.features.pop();
+    var proj = map.getView().getProjection();
+    let coordinates =
+        transform(point.getGeometry().getCoordinates(), proj, 'EPSG:4326');
+    point.values_.coordinates = coordinates;
+    setObsPos(point.values_);
+    rmLabel();
+  });
 
   addLayer_([ -20037508.34, -20037508.34, 20037508.34, 20037508.34 ],
             // License required for higher resolution.
@@ -165,6 +193,15 @@ function Map(div, initPos, SETTINGS, updateMap) {
     });
   }
   this.onClick = onClick;
+
+  function setTranslate(active) {
+    if (active) {
+      map.addInteraction(infoPointTranslate);
+    } else {
+      map.removeInteraction(infoPointTranslate);
+    }
+  }
+  this.setTranslate = setTranslate;
 
   function infoPointClick(func) {
     map.on('singleclick', (e) => {
@@ -319,6 +356,14 @@ function Map(div, initPos, SETTINGS, updateMap) {
   }
   this.addGeoJSON = addGeoJSON;
 
+  function clearRadar() {
+    radarpointLayer.getSource().forEachFeature((point) => {
+      delete this.points[point.values_.id];
+    });
+    radarpointLayer.getSource().clear();
+  }
+  this.clearRadar = clearRadar;
+
   function addInfoPoint(point) {
     var proj = map.getView().getProjection();
     let points = this.points;
@@ -351,8 +396,10 @@ function Map(div, initPos, SETTINGS, updateMap) {
           trigpointLayer,
           obspointLayer,
           oldpointLayer,
+          oldpointLayer,
           futurepointLayer,
-          fieldpointLayer
+          fieldpointLayer,
+          radarpointLayer,
         ].forEach((layer) => {
           try {
             layer.getSource().removeFeature(points[point.id]);
@@ -368,13 +415,18 @@ function Map(div, initPos, SETTINGS, updateMap) {
           obspointLayer.getSource().addFeature(pointFeature);
           break;
         case 'old':
+        case 'radarold':
           oldpointLayer.getSource().addFeature(pointFeature);
           break;
         case 'future':
+        case 'radarfuture':
           futurepointLayer.getSource().addFeature(pointFeature);
           break;
         case 'field':
           fieldpointLayer.getSource().addFeature(pointFeature);
+          break;
+        case 'radar':
+          radarpointLayer.getSource().addFeature(pointFeature);
           break;
         default:
           throw new Error('Invalid infopoint type!');
@@ -390,6 +442,7 @@ function Map(div, initPos, SETTINGS, updateMap) {
     oldpointLayer.getSource().clear();
     futurepointLayer.getSource().clear();
     fieldpointLayer.getSource().clear();
+    radarpointLayer.getSource().clear();
   }
   this.removeInfoPoints = removeInfoPoints;
 

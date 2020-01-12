@@ -17,7 +17,7 @@ function run() {
   }
 
   var readState = new ReadState(SETTINGS.PERSISTENCY);
-  var map = new Map('mapid', readState.mapInit(), SETTINGS.MAP, updateMap_);
+  var map = new Map('mapid', readState.mapInit(), SETTINGS.MAP, updateMap_, setPos_);
 
   var control = new Control(map,
                             readState.controlInit(),
@@ -62,6 +62,10 @@ function run() {
   function updateMap_() {
     label.clearLabel();
     mapMoved_();
+  }
+
+  function setPos_(point) {
+    njunis.setPos(point);
   }
 
   function mapMoved_() {

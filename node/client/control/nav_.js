@@ -48,8 +48,10 @@ function ControlNav(map, SETTINGS, helpToggle, loginToggle, loginState) {
 
   if (loginState) {
     login.getDiv().classList.add('hidden');
+    map.setTranslate(true);
   } else {
     logout.getDiv().classList.add('hidden');
+    map.setTranslate(false);
   }
 
   function getDiv() {
