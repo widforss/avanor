@@ -13,7 +13,7 @@ var SETTINGS = {
     NO_LAYER_STR:   'No satellite data found.',
   },
   NJUNIS: {
-    NJUNIS_HOST: 'https://njunis.avanor.se',
+    NJUNIS_HOST: 'http://10.90.90.229:8008',
     TIMEZONE: 'Europe/Stockholm',
     OBSPERIOD: 6,
     START_DIST: 6,

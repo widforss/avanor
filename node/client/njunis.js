@@ -12,7 +12,11 @@ function Njunis(map, readState, control, SETTINGS) {
   var reqCount;
 
   function checkReq() {
-    if (++reqCount == 9 && reqCallback) {
+    let num_callbacks = 9;
+    if (map.foreverLayer.get('visible') === true) {
+      num_callbacks = 4;
+    }
+    if (++reqCount == num_callbacks && reqCallback) {
       reqCallback();
     }
   }
@@ -76,6 +80,11 @@ function Njunis(map, readState, control, SETTINGS) {
         futureend =
             new Date(date.getTime(date) + 3600000 * 24 * SETTINGS.OLD_DIST),
         bounds = JSON.stringify(map.getBounds());
+    if (map.foreverLayer.get('visible') === true) {
+      startDate = new Date('1971-01-01');
+      date = new Date('2100-01-01');
+      endObs = new Date('2100-01-01');
+    }
 
     date.setDate(date.getDate() + 1);
 
@@ -109,13 +118,15 @@ function Njunis(map, readState, control, SETTINGS) {
 
     trigRequest.run(trigurl);
     obsRequest.run(obsurl);
-    oldRequest.run(oldurl);
-    radarOldRequest.run(radarOldurl);
-    futureTrigRequest.run(futureTrigurl);
-    futureObsRequest.run(futureObsurl);
-    radarFutureRequest.run(radarFutureurl);
     fieldRadarRequest.run(fieldRadarUrl);
     radarObsRequest.run(radarObsUrl);
+    if (map.foreverLayer.get('visible') === false) {
+      oldRequest.run(oldurl);
+      radarOldRequest.run(radarOldurl);
+      futureTrigRequest.run(futureTrigurl);
+      futureObsRequest.run(futureObsurl);
+      radarFutureRequest.run(radarFutureurl);
+    }
   }
   this.updateMap = updateMap;
 

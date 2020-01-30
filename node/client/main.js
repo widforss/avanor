@@ -47,6 +47,10 @@ function run() {
                                     SETTINGS.PERSISTENCY);
 
   map.onMove(mapMoved_);
+  map.onForever(() => {
+    map.removeInfoPoints();
+    updateMap_();
+  });
   map.onClick(label.setLabel);
   map.infoPointClick(label.infoPointLabel);
   control.getLayerSelect().setFunc(label.clearLabel);

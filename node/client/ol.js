@@ -17,6 +17,7 @@ import {register} from 'ol/proj/proj4.js';
 import proj4 from 'proj4';
 
 import {Popup} from './ol/popup.js';
+import LayerSwitcher from 'ol-layerswitcher';
 
 function Map(div, initPos, SETTINGS, updateMap, setObsPos) {
   var eeLayers = [];
@@ -53,6 +54,57 @@ function Map(div, initPos, SETTINGS, updateMap, setObsPos) {
 
   var popup = new Popup(updateMap);
 
+  this.points = [];
+  var trigpointLayer = new VectorLayer({
+    title: '<span style="color:orange">■</span> Field obs (estimated age)',
+    source: new Vector({
+      renderers: ['Canvas', 'VML'],
+      wrapX: false,
+    }),
+    zIndex: SETTINGS.NJUNIS_TRIG_Z,
+  });
+  var obspointLayer = new VectorLayer({
+    title: '<span style="color:red">■</span> Field obs',
+    source: new Vector({
+      renderers: ['Canvas', 'VML'],
+      wrapX: false,
+    }),
+    zIndex: SETTINGS.NJUNIS_OBS_Z,
+  });
+  var oldpointLayer = new VectorLayer({
+    title: '<span style="color:grey">■</span> Old and new',
+    source: new Vector({
+      renderers: ['Canvas', 'VML'],
+      wrapX: false,
+    }),
+    zIndex: SETTINGS.NJUNIS_OLD_Z,
+  });
+  var fieldpointLayer = new VectorLayer({
+    title: '<span style="color:green">■</span> Verified radar obs',
+    source: new Vector({
+      renderers: ['Canvas', 'VML'],
+      wrapX: false,
+    }),
+    zIndex: SETTINGS.NJUNIS_FIELD_Z,
+  });
+  var radarpointLayer = new VectorLayer({
+    title: '<span style="color:blue">■</span> Radar obs',
+    source: new Vector({
+      renderers: ['Canvas', 'VML'],
+      wrapX: false,
+    }),
+    zIndex: SETTINGS.NJUNIS_RADAR_Z,
+  });
+  var foreverLayer = new VectorLayer({
+    title: 'Forever',
+    source: new Vector({
+      renderers: ['Canvas', 'VML'],
+      wrapX: false,
+    }),
+    visible: false,
+    zIndex: 0,
+  });
+  this.foreverLayer = foreverLayer;
   var map = new OlMap({
     target : div,
     logo : false,
@@ -69,63 +121,21 @@ function Map(div, initPos, SETTINGS, updateMap, setObsPos) {
       pinchRotate: false,
     }),
     overlays: [popup.getOverlay()],
+    layers: [
+      foreverLayer,
+      oldpointLayer,
+      radarpointLayer,
+      fieldpointLayer,
+      obspointLayer,
+      trigpointLayer,
+    ]
   });
 
-  this.points = [];
-  var trigpointLayer = new VectorLayer({
-    source: new Vector({
-      renderers: ['Canvas', 'VML'],
-      wrapX: false,
-    }),
-    zIndex: SETTINGS.NJUNIS_TRIG_Z,
-  });
-  var obspointLayer = new VectorLayer({
-    source: new Vector({
-      renderers: ['Canvas', 'VML'],
-      wrapX: false,
-    }),
-    zIndex: SETTINGS.NJUNIS_OBS_Z,
-  });
-  var oldpointLayer = new VectorLayer({
-    source: new Vector({
-      renderers: ['Canvas', 'VML'],
-      wrapX: false,
-    }),
-    zIndex: SETTINGS.NJUNIS_OLD_Z,
-  });
-  var futurepointLayer = new VectorLayer({
-    source: new Vector({
-      renderers: ['Canvas', 'VML'],
-      wrapX: false,
-    }),
-    zIndex: SETTINGS.NJUNIS_FUTURE_Z,
-  });
-  var fieldpointLayer = new VectorLayer({
-    source: new Vector({
-      renderers: ['Canvas', 'VML'],
-      wrapX: false,
-    }),
-    zIndex: SETTINGS.NJUNIS_FIELD_Z,
-  });
-  var radarpointLayer = new VectorLayer({
-    source: new Vector({
-      renderers: ['Canvas', 'VML'],
-      wrapX: false,
-    }),
-    zIndex: SETTINGS.NJUNIS_RADAR_Z,
-  });
-  map.addLayer(trigpointLayer);
-  map.addLayer(obspointLayer);
-  map.addLayer(oldpointLayer);
-  map.addLayer(futurepointLayer);
-  map.addLayer(fieldpointLayer);
-  map.addLayer(radarpointLayer);
   var infoPointTranslate = new Translate({
     layers: [
       trigpointLayer,
       obspointLayer,
       oldpointLayer,
-      futurepointLayer,
       fieldpointLayer,
       radarpointLayer,
     ],
@@ -167,6 +177,34 @@ function Map(div, initPos, SETTINGS, updateMap, setObsPos) {
                  'Format=image/png&' +
                  'TileMatrix=EPSG:3857:{z}&TileCol={x}&TileRow={y}',
             2);
+  
+  let prevZoom;
+  let prevOldVisible;
+  foreverLayer.on('change:visible', (e) => {
+    let visible = e.target.get('visible');
+    if (visible) {
+      prevZoom = map.getView().getZoom();
+      map.getView().setMinZoom(11);
+      prevOldVisible = oldpointLayer.get('visible');
+      oldpointLayer.set('visible', false);
+    } else {
+      map.getView().setMinZoom(6);
+      map.getView().setZoom(prevZoom);
+      oldpointLayer.set('visible', prevOldVisible);
+    }
+  });
+  oldpointLayer.on('change:visible', (e) => {
+    if (foreverLayer.get('visible')) {
+      oldpointLayer.set('visible', false);
+    }
+  });
+
+function onForever(func) {
+    foreverLayer.on('change:visible', (e) => {
+      func(e);
+    });
+  }
+  this.onForever = onForever;
 
   function onMove(func) {
     map.on('moveend', () => {
@@ -397,7 +435,6 @@ function Map(div, initPos, SETTINGS, updateMap, setObsPos) {
           obspointLayer,
           oldpointLayer,
           oldpointLayer,
-          futurepointLayer,
           fieldpointLayer,
           radarpointLayer,
         ].forEach((layer) => {
@@ -416,11 +453,9 @@ function Map(div, initPos, SETTINGS, updateMap, setObsPos) {
           break;
         case 'old':
         case 'radarold':
-          oldpointLayer.getSource().addFeature(pointFeature);
-          break;
         case 'future':
         case 'radarfuture':
-          futurepointLayer.getSource().addFeature(pointFeature);
+          oldpointLayer.getSource().addFeature(pointFeature);
           break;
         case 'field':
           fieldpointLayer.getSource().addFeature(pointFeature);
@@ -440,7 +475,6 @@ function Map(div, initPos, SETTINGS, updateMap, setObsPos) {
     trigpointLayer.getSource().clear();
     obspointLayer.getSource().clear();
     oldpointLayer.getSource().clear();
-    futurepointLayer.getSource().clear();
     fieldpointLayer.getSource().clear();
     radarpointLayer.getSource().clear();
   }
@@ -526,6 +560,13 @@ function Map(div, initPos, SETTINGS, updateMap, setObsPos) {
 
     setTimeout(() => { tile.load(); }, delay);
   }
+
+  var layerSwitcher = new LayerSwitcher({
+    tipLabel: 'Layers', // Optional label for button
+    groupSelectStyle: 'group' // Can be 'children' [default], 'group' or 'none'
+  });
+  //Add filter legend
+  map.addControl(layerSwitcher);
 }
 
 export {Map};
