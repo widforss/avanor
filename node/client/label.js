@@ -17,8 +17,23 @@ function Label(map, readState, getUrl, njunis) {
     var content = document.createElement('div');
     content.innerHTML = '';
     for (var prop in point.info) {
+      let text = point.info[prop];
+      let date;
+      if (typeof text == "string" && text.match(/^[0-9]{4}(\-[0-9]{2}){2} [0-9]{2}:[0-9]{2}$/)) {
+        date = new Date(text);
+      }
+      if (!isNaN(date)) {
+        let href = [
+          "/?x=" + labelPosition.x,
+          "y=" + labelPosition.y,
+          "z=" + map.getZ(),
+          "date=" + [date.getFullYear(), date.getMonth() + 1, date.getDate()].join('-'),
+          "basemap=" + map.getBaseMap(),
+        ].join("&");
+        text = `<a href="${href}">${text}</a>`;
+      }
       content.innerHTML +=
-          '<strong>' + prop + ':</strong> ' + point.info[prop] + '<br>';
+          '<strong>' + prop + ':</strong> ' + text + '<br>';
     }
 
     let callback = () => {
@@ -60,7 +75,7 @@ function Label(map, readState, getUrl, njunis) {
           if (point) {
             infoPointLabel(point, false);
           } else {
-            setLabel(getX(), getY(), false);
+            setLabel(labelPosition.x, labelPosition.y, false);
           }
         });
       };

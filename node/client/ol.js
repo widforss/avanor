@@ -10,6 +10,7 @@ import GeoJSON from 'ol/format/GeoJSON';
 import Feature from 'ol/Feature';
 import {Circle as CircleStyle, Fill, Stroke, Style} from 'ol/style.js';
 import Point from 'ol/geom/Point';
+import Collection from 'ol/Collection';
 import {transform, transformExtent, get as getProjection} from 'ol/proj';
 import {defaults as defaultInteractions} from 'ol/interaction';
 import Translate from 'ol/interaction/Translate';
@@ -19,7 +20,8 @@ import proj4 from 'proj4';
 import {Popup} from './ol/popup.js';
 import LayerSwitcher from 'ol-layerswitcher';
 
-function Map(div, initPos, SETTINGS, updateMap, setObsPos) {
+function Map(div, readState, SETTINGS, updateMap, setObsPos) {
+  var that = this;
   var eeLayers = [];
   var eeHidden = false;
   var labelCounter = 0;
@@ -105,6 +107,7 @@ function Map(div, initPos, SETTINGS, updateMap, setObsPos) {
     zIndex: 0,
   });
   this.foreverLayer = foreverLayer;
+  let initPos = readState.mapInit();
   var map = new OlMap({
     target : div,
     logo : false,
@@ -131,7 +134,10 @@ function Map(div, initPos, SETTINGS, updateMap, setObsPos) {
     ]
   });
 
+  let infoPointTimeout;
+  let infoPointFeatures = [];
   var infoPointTranslate = new Translate({
+    features: new Collection(infoPointFeatures),
     layers: [
       trigpointLayer,
       obspointLayer,
@@ -140,8 +146,11 @@ function Map(div, initPos, SETTINGS, updateMap, setObsPos) {
       radarpointLayer,
     ],
   });
+  infoPointTranslate.on('translatestart', (e) => {
+    clearTimeout(infoPointTimeout);
+  });
   infoPointTranslate.on('translateend', (e) => {
-    let point = e.features.pop();
+    let point = infoPointFeatures.pop();
     var proj = map.getView().getProjection();
     let coordinates =
         transform(point.getGeometry().getCoordinates(), proj, 'EPSG:4326');
@@ -242,13 +251,22 @@ function onForever(func) {
   this.setTranslate = setTranslate;
 
   function infoPointClick(func) {
-    map.on('singleclick', (e) => {
+    map.on('click', (e) => {
       var done;
       map.forEachFeatureAtPixel(e.pixel, (feature, layer) => {
         var feat = feature.getProperties();
         if (!done && feat.id) {
           done = true;
-          func(feat);
+          let token = readState.getToken();
+          if (!token) {
+            func(feat);
+          } else {
+            infoPointFeatures.push(feature)
+            infoPointTimeout = setTimeout(() => {
+              infoPointFeatures.pop()
+              func(feat);
+            }, 500);
+          }
           return true;
         }
       });
@@ -260,13 +278,15 @@ function onForever(func) {
     var proj = map.getView().getProjection();
     var coord = transform([x, y], 'EPSG:4326', proj);
     popup.setContent(content);
-    if (doPopup !== false) popup.setPosition(coord);
+    console.log(popup.getPosition())
+    if (doPopup !== false || popup.getPosition()) popup.setPosition(coord);
     return ++labelCounter;
   }
   this.addLabel = addLabel;
 
   function rmLabel() {
     popup.setPosition(undefined);
+    that.EeTrigger = null;
   }
   this.rmLabel = rmLabel;
 

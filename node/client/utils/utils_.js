@@ -169,12 +169,16 @@ function ControlUtils() {
     setOptions(options);
     if (callback) selectList.addEventListener('change', callback);
  
-    function setOptions(options) {
+    function setOptions(options, textOptions) {
+      if (!textOptions || options.length !== textOptions.length) {
+        textOptions = options;
+      }
+
       selectList.options.length = 0;
-      for (var value of options) {
+      for (let i = 0; i < options.length; i++) {
         var option = document.createElement("option");
-        option.value = value;
-        option.text = value;
+        option.value = options[i];
+        option.text = textOptions[i];
         selectList.appendChild(option);
       }
       if (options.length > 1) {

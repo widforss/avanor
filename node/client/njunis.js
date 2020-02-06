@@ -163,9 +163,19 @@ function Njunis(map, readState, control, SETTINGS) {
       req.send(JSON.stringify(radarObs));
     });
 
-    let remove = new controlUtils.Button('Remove image from avalanche.', () => {
+    let remove = new controlUtils.Button('Remove single image from avalanche.', () => {
       var rmUrl =
           SETTINGS.NJUNIS_HOST + "/api/secure/radarobs/" + obsId + "?token=" + token;
+      var req = new XMLHttpRequest();
+      req.onload = callback;
+      req.open('DELETE', rmUrl, true);
+      req.setRequestHeader("Content-Type", "application/json");
+      req.send();
+    });
+
+    let removeObs = new controlUtils.Button('Clear ALL radar data.', () => {
+      var rmUrl = SETTINGS.NJUNIS_HOST + "/api/secure/radarobs/" + point.radarId
+          + "?token=" + token + '&full=true';
       var req = new XMLHttpRequest();
       req.onload = callback;
       req.open('DELETE', rmUrl, true);
@@ -196,6 +206,10 @@ function Njunis(map, readState, control, SETTINGS) {
       radarReq.run(radarUrl);
     } else if (radarObs && radarObs.orbit) {
       parent.appendChild(newObs.getDiv());
+    }
+
+    if (point && point.radarId) {
+      parent.appendChild(removeObs.getDiv());
     }
 
     return parent;
@@ -269,7 +283,6 @@ function Njunis(map, readState, control, SETTINGS) {
       radarDate = 0;
     }
 
-
     var coordinates;
     if (response.radarcoordinates && response.radarcoordinates[0]) {
       coordinates = response.radarcoordinates;
@@ -278,6 +291,7 @@ function Njunis(map, readState, control, SETTINGS) {
     }
     var point = {
       id,
+      radarId: response._radarobsid,
       coordinates,
       type,
       info: {},

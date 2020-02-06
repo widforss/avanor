@@ -42,3 +42,6 @@
 .ol-popup-closer:after {
   content: "✖";
 }
+.ol-popup .controlButton {
+  margin-top: 5px;
+}

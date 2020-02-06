@@ -51,7 +51,15 @@ function Layer(map, control, firstLayer, SETTINGS, setState, label) {
     layerNames = layerNamesParam;
     
     if (layerNames.length) {
-      control.getLayerSelect().setOptions(layerNames);
+      let layerText = layerNames.map((text) => {
+        if (typeof text == "string" && text.match(/^[AB][0-9]{1,3}A/)) {
+          return "Dusk: " + text;
+        } else if (typeof text == "string" && text.match(/^[AB][0-9]{1,3}D/)) {
+          return "Dawn: " + text;
+        }
+        return text;
+      });
+      control.getLayerSelect().setOptions(layerNames, layerText);
       var idx = layerNames.indexOf(currentName ?
                                    currentName :
                                    firstLayer);
