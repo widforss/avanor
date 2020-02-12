@@ -148,6 +148,7 @@ function Map(div, readState, SETTINGS, updateMap, setObsPos) {
   });
   infoPointTranslate.on('translatestart', (e) => {
     clearTimeout(infoPointTimeout);
+    clearTimeout(onClickTimeout);
   });
   infoPointTranslate.on('translateend', (e) => {
     let point = infoPointFeatures.pop();
@@ -222,20 +223,26 @@ function onForever(func) {
   }
   this.onMove = onMove;
 
+  let onClickTimeout;
   function onClick(func) {
-    map.on('singleclick', (e) => {
+    clearTimeout(onClickTimeout);
+    map.on('click', (e) => {
       var features =
           map.getFeaturesAtPixel(e.pixel).map((feat) => feat.getProperties());
       var isInfoPoint;
       for (var feature of features) {
         if (feature.id) isInfoPoint = true;
       }
-      if (!isInfoPoint) {
-        var proj = map.getView().getProjection();
-        var coord = transform(e.coordinate, proj, 'EPSG:4326');
-        var lat = coord[1];
-        var lon = coord[0];
-        func(lon, lat);
+      if (!isInfoPoint && !popup.getPosition()) {
+        onClickTimeout = setTimeout(() => {
+          var proj = map.getView().getProjection();
+          var coord = transform(e.coordinate, proj, 'EPSG:4326');
+          var lat = coord[1];
+          var lon = coord[0];
+          func(lon, lat);
+        }, 250);
+      } else {
+        rmLabel();
       }
     });
   }
@@ -252,6 +259,7 @@ function onForever(func) {
 
   function infoPointClick(func) {
     map.on('click', (e) => {
+      clearTimeout(infoPointTimeout);
       var done;
       map.forEachFeatureAtPixel(e.pixel, (feature, layer) => {
         var feat = feature.getProperties();
@@ -265,7 +273,7 @@ function onForever(func) {
             infoPointTimeout = setTimeout(() => {
               infoPointFeatures.pop()
               func(feat);
-            }, 500);
+            }, 250);
           }
           return true;
         }
@@ -278,7 +286,6 @@ function onForever(func) {
     var proj = map.getView().getProjection();
     var coord = transform([x, y], 'EPSG:4326', proj);
     popup.setContent(content);
-    console.log(popup.getPosition())
     if (doPopup !== false || popup.getPosition()) popup.setPosition(coord);
     return ++labelCounter;
   }

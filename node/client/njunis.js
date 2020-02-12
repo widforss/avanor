@@ -225,7 +225,7 @@ function Njunis(map, readState, control, SETTINGS) {
 
     let radarObs = {
       "_radarObsId": point && point.radarId ? point.radarId : null,
-      "_avalancheId": point ? (point.radarId ? null : point.id) : null,
+      "_avalancheId": point ? point.id : null,
       "visibility": null,
       "ascending": null,
       "orbit": null,
@@ -413,7 +413,7 @@ function Njunis(map, readState, control, SETTINGS) {
     
     let radarObs = {
       "_radarObsId": point ? point.radarId ? point.radarId : null : null,
-      "_avalancheId": point ? (point.radarId ? null : point.id) : null,
+      "_avalancheId": point ? point.id : null,
       "visibility": null,
       "ascending": layer.direction == "ASCENDING",
       "orbit": layer.orbit,
