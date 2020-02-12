@@ -261,3 +261,9 @@ h1 > img {
 #error {
   color: red;
 }
+
+.avaImg {
+  width: 100%;
+  height: auto;
+  display: block;
+}

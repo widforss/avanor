@@ -7,7 +7,7 @@ function Popup(updateMap) {
   
   var overlay = new Overlay({
     element: container,
-    autoPan: true,
+    autoPan: false,
     autoPanAnimation: {
       duration: 250
     }

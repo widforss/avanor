@@ -10,6 +10,7 @@ function Njunis(map, readState, control, SETTINGS) {
   var controlUtils  = new ControlUtils();
   var reqCallback;
   var reqCount;
+  var images = {};
 
   function checkReq() {
     let num_callbacks = 9;
@@ -348,6 +349,41 @@ function Njunis(map, readState, control, SETTINGS) {
 
     return point;
   }
+
+  function addImages(div, id) {
+    let callback = (urls) => {
+      images[id] = [];
+      urls.forEach((imageUrl) => {
+        let a = document.createElement('a');
+        images[id].push(a);
+        a.href = SETTINGS.NJUNIS_HOST + imageUrl + '?full=true';
+        a.target = "_blank";
+        let img = document.createElement('img');
+        img.src = SETTINGS.NJUNIS_HOST + imageUrl;
+        img.classList.add('avaImg');
+        a.appendChild(img);
+        div.appendChild(a);
+      });
+    };
+
+    if (images[id]) {
+      images[id].forEach((image) => {
+        div.appendChild(image);
+      });
+    } else {
+      var searchUrl = SETTINGS.NJUNIS_HOST + "/images/search/" + id;
+      var req = new XMLHttpRequest();
+      req.onload = () => {
+        if (req.status == 200) {
+          let urls = JSON.parse(req.response);
+          callback(urls);
+        }
+      };
+      req.open('GET', searchUrl, true);
+      req.send();
+    }
+  }
+  this.addImages = addImages;
 
   function formatDate_(date, timezone) {
       var d = new Date(date),

@@ -36,6 +36,12 @@ function Label(map, readState, getUrl, njunis) {
           '<strong>' + prop + ':</strong> ' + text + '<br>';
     }
 
+    if (!point.type.match(/radar/)) {
+      let imageDiv = document.createElement('div');
+      njunis.addImages(imageDiv, point.id);
+      content.appendChild(imageDiv);
+    }
+
     let callback = () => {
       njunis.updateMap(() => {
         let mapPoint = map.points[point.id];
