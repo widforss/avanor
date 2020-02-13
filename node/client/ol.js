@@ -234,13 +234,16 @@ function onForever(func) {
         if (feature.id) isInfoPoint = true;
       }
       if (!isInfoPoint && !popup.getPosition()) {
-        onClickTimeout = setTimeout(() => {
-          var proj = map.getView().getProjection();
-          var coord = transform(e.coordinate, proj, 'EPSG:4326');
-          var lat = coord[1];
-          var lon = coord[0];
+        let token = readState.getToken();
+        var proj = map.getView().getProjection();
+        var coord = transform(e.coordinate, proj, 'EPSG:4326');
+        var lat = coord[1];
+        var lon = coord[0];
+        if (!token) {
           func(lon, lat);
-        }, 250);
+        } else {
+          onClickTimeout = setTimeout(() => func(lon, lat), 25);
+        }
       } else {
         rmLabel();
       }
