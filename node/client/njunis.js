@@ -225,7 +225,7 @@ function Njunis(map, readState, control, SETTINGS) {
 
     let radarObs = {
       "_radarObsId": point && point.radarId ? point.radarId : null,
-      "_avalancheId": point ? point.id : null,
+      "_avalancheId": point && !point.type.match(/radar/) ? point.id : null,
       "visibility": null,
       "ascending": null,
       "orbit": null,
