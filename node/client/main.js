@@ -65,6 +65,7 @@ function run() {
 
   function updateMap_() {
     label.clearLabel();
+    control.showWarning(false);
     mapMoved_();
   }
 
@@ -91,6 +92,7 @@ function run() {
   }
 
   function setState_() {
+    if (njunis) njunis.weather();
     if (persistency) {
       return persistency.setState();
     } else {

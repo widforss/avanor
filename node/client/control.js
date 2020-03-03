@@ -86,6 +86,11 @@ function Control(map, initVals, SETTINGS, notify_, setState, setToken, readState
   aboutOk.getDiv().classList.add('help');
   aboutText.getDiv().classList.add('aboutText');
 
+  var warning = new controlUtils.Control([
+    new controlUtils.Text('Old avalanches may be visible<br>on this image!').getDiv(),
+  ]);
+  warning.getDiv().classList.add('hidden');
+
   var loginTitle = new controlUtils.Text(SETTINGS.LOGIN_TITLE);
   var loginText = new controlUtils.Text(null);
   var loginOk = new controlUtils.Button('Close this dialog', toggleLogin_);
@@ -103,6 +108,7 @@ function Control(map, initVals, SETTINGS, notify_, setState, setToken, readState
   }
   
   controlContainer.appendChild(controlPanel.getDiv());
+  controlContainer.appendChild(warning.getDiv());
   controlContainer.appendChild(about.getDiv());
   controlContainer.appendChild(login.getDiv());
 
@@ -126,10 +132,24 @@ function Control(map, initVals, SETTINGS, notify_, setState, setToken, readState
   }
   this.isHelpHidden = isHelpHidden;
 
+  var warningState = false;
+  function showWarning(value) {
+    if (value !== undefined) warningState = value;
+    let aboutHidden = about.getDiv().classList.contains('hidden');
+    let loginHidden = login.getDiv().classList.contains('hidden');
+    if (warningState && aboutHidden && loginHidden) {
+      warning.getDiv().classList.remove('hidden');
+    } else {
+      warning.getDiv().classList.add('hidden');
+    }
+  }
+  this.showWarning = showWarning;
+
   function toggleHelp_() {
     about.getDiv().classList.toggle('hidden');
     controlPanel.getDiv().classList.toggle('hidden');
     login.getDiv().classList.add('hidden');
+    showWarning();
     setState();
   }
 
@@ -137,6 +157,7 @@ function Control(map, initVals, SETTINGS, notify_, setState, setToken, readState
     about.getDiv().classList.add('hidden');
     controlPanel.getDiv().classList.remove('hidden');
     login.getDiv().classList.toggle('hidden');
+    showWarning();
   }
 }
 

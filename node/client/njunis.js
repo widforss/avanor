@@ -385,6 +385,79 @@ function Njunis(map, readState, control, SETTINGS) {
   }
   this.addImages = addImages;
 
+  var knownLayers = {};
+  function weather() {
+    let layer = control.getLayerSelect().getValue();
+    let dates = layer.match(/20([0-9]{2}-){2}[0-9]{2}/g);
+    if (dates && knownLayers[dates] !== undefined) {
+      control.showWarning(knownLayers[dates]);
+    } else {
+      control.showWarning(false);
+    }
+    if (dates.length != 2) return;
+
+    let date1 = dates[0];
+    let date2 = dates[1];
+    let maxTemp;
+    let minTemp;
+    let hn24;
+    var firstRequest = new utils.Request((response) => {
+      let obses = JSON.parse(response);
+
+      for (let obs of obses) {
+        if (obs.distance > 250) {
+          knownLayers[dates] = false;
+          control.showWarning(false);
+          return;
+        }
+        maxTemp = obs.tempMax !== undefined ? obs.tempMax : obs.tempPres;
+        maxTemp = maxTemp !== undefined ? maxTemp : obs.tempMin;
+        hn24 = obs.hn24 !== undefined ? obs.hn24 : obs.hn24w;
+        if (maxTemp > 2 || maxTemp > 0 && hn24 > 3) {
+          evaluate();
+          return;
+        }
+      }
+      knownLayers[dates] = false;
+      control.showWarning(false);
+    });
+
+    var secondRequest = new utils.Request((response) => {
+      let obses = JSON.parse(response);
+
+      for (let obs of obses) {
+        if (obs.distance > 250) {
+          knownLayers[dates] = false;
+          control.showWarning(false);
+          return;
+        }
+        minTemp = obs.tempMin !== undefined ? obs.tempMin : obs.tempPres;
+        minTemp = minTemp !== undefined ? minTemp : obs.tempMax;
+        if (minTemp <= -5) {
+          evaluate();
+          return;
+        }
+      }
+      knownLayers[dates] = false;
+      control.showWarning(false);
+    });
+
+    let evalCount = 0;
+    let evaluate = () => {
+        if (++evalCount == 2) {
+          console.log(`Reference temp: ${maxTemp}, Reference precipitation: ${hn24}, Activity temp: ${minTemp}`);
+          knownLayers[dates] = true;
+          control.showWarning(true);
+        }
+    };
+
+    let url = [SETTINGS.NJUNIS_HOST, "weather", date1, map.getX(), map.getY()].join('/');
+    firstRequest.run(url);
+    url = [SETTINGS.NJUNIS_HOST, "weather", date2, map.getX(), map.getY()].join('/');
+    secondRequest.run(url);
+  }
+  this.weather = weather;
+
   function formatDate_(date, timezone) {
       var d = new Date(date),
           month = '' + (d.getUTCMonth() + 1),
