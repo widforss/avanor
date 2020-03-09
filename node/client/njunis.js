@@ -494,6 +494,10 @@ function Njunis(map, readState, control, SETTINGS) {
       "coordinates": point ? point.coordinates : coordinates,
     };
 
+    if (radarObs['_radarObsId'] === radarObs['_avalancheId']) {
+      radarObs['_avalancheId'] = null;
+    }
+
     return radarObs;
   }
 }
